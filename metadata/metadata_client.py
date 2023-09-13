@@ -96,6 +96,7 @@ class MetadataClient:
             except:
                 pass
 
+            print(error_msg)
             raise ApiError(error_msg, status=resp.status_code, json=j)
 
         return self._parse_response_body(resp, content_type)
