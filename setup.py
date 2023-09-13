@@ -1,11 +1,9 @@
-import os
 from pathlib import Path
 
 import setuptools
 
 current_dir = Path(__file__).parent.resolve()
 readme_path = current_dir / "README.md"
-requirements_path = current_dir / "requirements.txt"
 
 setuptools.setup(
     name="py-metadata",
@@ -16,12 +14,11 @@ setuptools.setup(
     long_description=readme_path.read_text(),
     long_description_content_type="text/markdown",
     license="Apache License 2.0",
-    #keywords="ansible",
     url="https://github.com/linode/py-metadata/",
     packages=["metadata"],
-   # install_requires=requirements_path.read_text().splitlines(),
     python_requires=">=3",
-    #entry_points={
-     #   "console_scripts": ["metadata=metadata.metadata_client:main"],
-    #},
+
+    install_requires=[
+        "requests"
+    ],
 )
