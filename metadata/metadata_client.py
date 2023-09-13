@@ -96,7 +96,6 @@ class MetadataClient:
             except:
                 pass
 
-            print(resp)
             raise ApiError(error_msg, status=resp.status_code, json=j)
 
         return self._parse_response_body(resp, content_type)
@@ -123,7 +122,7 @@ class MetadataClient:
             "/token",
             content_type="text/plain",
             additional_headers={
-                "X-Metadata-Token-Expiry-Seconds": str(expiry_seconds)
+                "Metadata-Token-Expiry-Seconds": str(expiry_seconds)
             },
             authenticated=False
         )
