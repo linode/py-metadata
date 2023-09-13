@@ -70,7 +70,7 @@ class MetadataClient:
         }
 
         if authenticated:
-            headers["X-Metadata-Token"] = self._token
+            headers["Metadata-Token"] = self._token
 
         if additional_headers is not None:
             headers.update(additional_headers)
