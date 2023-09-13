@@ -13,7 +13,7 @@ from metadata.objects.instance import InstanceResponse
 from metadata.objects.ssh_keys import SSHKeysResponse
 from metadata.objects.token import MetadataToken
 
-#package_version = pkg_resources.require("linode_api4")[0].version
+package_version = pkg_resources.require("linode_api4")[0].version
 
 
 class MetadataClient:
