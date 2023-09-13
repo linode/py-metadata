@@ -6,5 +6,9 @@ clean:
 	rm -r dist
 
 @PHONEY: build
-build: clean
+build: clean requirements
 	$(PYTHON) -m build  --wheel --sdist
+
+@PHONEY: requirements
+requirements:
+	pip install -r requirements.txt

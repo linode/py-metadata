@@ -13,7 +13,7 @@ from metadata.objects.instance import InstanceResponse
 from metadata.objects.ssh_keys import SSHKeysResponse
 from metadata.objects.token import MetadataToken
 
-package_version = pkg_resources.require("linode_api4")[0].version
+#package_version = pkg_resources.require("linode_api4")[0].version
 
 
 class MetadataClient:
@@ -133,7 +133,7 @@ class MetadataClient:
             created=datetime.now()
         )
 
-    def refresh_token(self, expiry_seconds: int = 3600):
+    def refresh_token(self, expiry_seconds: int = 5):
         result = self.generate_token(expiry_seconds=expiry_seconds)
         self.set_token(result.token)
 
