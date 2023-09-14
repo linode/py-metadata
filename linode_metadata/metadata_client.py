@@ -9,10 +9,10 @@ from requests import Response
 
 from datetime import datetime
 
-from metadata import NetworkResponse
-from metadata.objects.instance import InstanceResponse
-from metadata.objects.ssh_keys import SSHKeysResponse
-from metadata.objects.token import MetadataToken
+from linode_metadata import NetworkResponse
+from linode_metadata.objects.instance import InstanceResponse
+from linode_metadata.objects.ssh_keys import SSHKeysResponse
+from linode_metadata.objects.token import MetadataToken
 
 package_version = pkg_resources.require("linode_api4")[0].version
 

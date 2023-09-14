@@ -1,6 +1,6 @@
 import os
 
-from metadata import MetadataClient
+from linode_metadata import MetadataClient
 
 
 def main():

@@ -6,7 +6,7 @@ current_dir = Path(__file__).parent.resolve()
 readme_path = current_dir / "README.md"
 
 setuptools.setup(
-    name="py-metadata",
+    name="linode_metadata",
     version="0.0.0",
     author="Linode",
     author_email="dev-dx@linode.com",
@@ -15,7 +15,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     license="Apache License 2.0",
     url="https://github.com/linode/py-metadata/",
-    packages=["metadata"],
+    packages=["linode_metadata", "linode_metadata.objects"],
     python_requires=">=3",
 
     install_requires=[
