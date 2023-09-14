@@ -9,18 +9,21 @@ class InstanceBackups(ResponseBase):
     enabled: bool
     status: Optional[List[str]]
 
+@dataclass(init=False)
+class InstanceSpecs(ResponseBase):
+    vcpus: int
+    disk: int
+    memory: int
+    transfer: int
+    gpus: int
 
 @dataclass(init=False)
 class InstanceResponse(ResponseBase):
     host_uuid: str
-    label: str
     id: int
-    tags: str
+    label: str
     region: str
+    tags: str
     type: str
-    machine: str
-    
-    cpus: int
-    memory: int
-    disk: int
+    specs: InstanceSpecs
     backups: InstanceBackups
