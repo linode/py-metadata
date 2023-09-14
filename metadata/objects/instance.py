@@ -12,12 +12,14 @@ class InstanceBackups(ResponseBase):
 
 @dataclass(init=False)
 class InstanceResponse(ResponseBase):
-    local_hostname: str = field(metadata={"json": "local-hostname"})
+    host_uuid: str
+    label: str
+    id: int
+    tags: str
     region: str
     type: str
     machine: str
-    id: int
-    instance_id: int = field(metadata={"json": "instance-id"})
+    
     cpus: int
     memory: int
     disk: int
