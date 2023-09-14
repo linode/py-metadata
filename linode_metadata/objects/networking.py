@@ -16,7 +16,6 @@ class IPv4Networking(ResponseBase):
     public: List[str]
     private: List[str]
     shared: List[str]
-    elastic: List[str]
 
 
 @dataclass(init=False)
@@ -24,7 +23,7 @@ class IPv6Networking(ResponseBase):
     slaac: str
     link_local: List[str] = field(metadata={"json": "link-local"})
     ranges: List[str]
-    elastic_ranges: List[str] = field(metadata={"json": "elastic-ranges"})
+    shared_ranges: List[str] = field(metadata={"json": "shared-ranges"})
 
 
 @dataclass(init=False)
