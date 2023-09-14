@@ -9,6 +9,10 @@ clean:
 build: clean requirements
 	$(PYTHON) -m build  --wheel --sdist
 
+@PHONEY: install
+install: build
+	pip install dist/*.whl
+
 @PHONEY: requirements
 requirements:
 	pip install -r requirements.txt
