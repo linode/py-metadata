@@ -1,3 +1,4 @@
+import base64
 import datetime
 import json
 from typing import Any, Union
@@ -146,7 +147,7 @@ class MetadataClient:
             "/user-data",
             content_type="text/plain"
         )
-        return resp
+        return base64.b64decode(resp).decode('utf-8')
 
     def get_instance(self) -> InstanceResponse:
         resp = self._api_call(
