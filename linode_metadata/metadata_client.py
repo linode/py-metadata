@@ -9,7 +9,10 @@ from requests import Response
 
 from datetime import datetime
 
+from requests import ConnectTimeout
+
 from linode_metadata import NetworkResponse
+from linode_metadata.objects.error import ApiError
 from linode_metadata.objects.instance import InstanceResponse
 from linode_metadata.objects.ssh_keys import SSHKeysResponse
 from linode_metadata.objects.token import MetadataToken
@@ -37,6 +40,8 @@ class MetadataClient:
         self._append_user_agent = user_agent
         self._token = token
 
+        self.check_connection()
+
         if init_token:
             self.refresh_token()
 
@@ -47,6 +52,12 @@ class MetadataClient:
                 package_version,
                 requests.utils.default_user_agent()
         )
+    
+    def check_connection(self):
+        try:
+            requests.get(self.base_url, timeout=10)
+        except ConnectTimeout:
+            raise ConnectTimeout("Unable to reach Metadata service. Please check that you are running from inside a Linode.")
 
     def _api_call(self, method: str, endpoint: str, content_type="application/json", body=None, additional_headers=None, authenticated=True) -> Union[str, dict]:
         if authenticated and self._token is None:
@@ -82,9 +93,6 @@ class MetadataClient:
         resp = method_map[method](url, headers=headers, data=body)
 
         if 399 < resp.status_code < 600:
-            # Prevent cyclic dependency
-            from linode_api4 import ApiError
-
             j = None
             error_msg = f"{resp.status_code}: "
 
@@ -134,7 +142,7 @@ class MetadataClient:
             created=datetime.now()
         )
 
-    def refresh_token(self, expiry_seconds: int = 5):
+    def refresh_token(self, expiry_seconds: int = 3600):
         result = self.generate_token(expiry_seconds=expiry_seconds)
         self.set_token(result.token)
 

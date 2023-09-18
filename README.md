@@ -4,7 +4,7 @@ This package contains a client to interact with the Linode Metadata service in P
 
 ## Usage
 
-Run ```make build``` to install the metadata client onto your machine. After doing so, the following code sample can help you quickly get started using this package.
+Run ```make install``` to install the metadata client onto your machine. After doing so, the following code sample can help you quickly get started using this package.
 
 ```python
 import linode_metadata
