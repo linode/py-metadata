@@ -15,4 +15,4 @@ install: build
 
 @PHONEY: requirements
 requirements:
-	pip install -r requirements.txt
+	pip install -r requirements.txt -r requirements-dev.txt
