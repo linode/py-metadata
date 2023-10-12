@@ -8,7 +8,7 @@ name = "linode_metadata"
 authors = [{ name = "Linode", email = "developers@linode.com" }]
 description = "A client to interact with the Linode Metadata service in Python."
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.8"
 license = { text = "BSD-3-Clause" }
 classifiers = [
     "Development Status :: 4 - Beta",
