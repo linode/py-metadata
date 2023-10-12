@@ -2,11 +2,11 @@ PYTHON ?= python3
 
 @PHONEY: clean
 clean:
-	mkdir -p dist
-	rm -r dist
+	rm -rf dist
 
 @PHONEY: build
-build: clean requirements
+build: clean
+	$(PYTHON) -m pip install -U build
 	$(PYTHON) -m build  --wheel --sdist
 
 @PHONEY: install
@@ -15,4 +15,4 @@ install: build
 
 @PHONEY: requirements
 requirements:
-	pip install -r requirements.txt -r requirements-dev.txt
+	$(PYTHON) -m pip install -r requirements.txt
