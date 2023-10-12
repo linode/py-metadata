@@ -1,15 +1,12 @@
 import base64
 import datetime
 import json
+from datetime import datetime
 from typing import Any, Union
 
 import pkg_resources
 import requests
-from requests import Response
-
-from datetime import datetime
-
-from requests import ConnectTimeout
+from requests import ConnectTimeout, Response
 
 from linode_metadata import NetworkResponse
 from linode_metadata.objects.error import ApiError
@@ -21,7 +18,13 @@ package_version = pkg_resources.require("linode_api4")[0].version
 
 
 class MetadataClient:
-    def __init__(self, base_url="http://169.254.169.254/v1", user_agent=None, token=None, init_token=True):
+    def __init__(
+        self,
+        base_url="http://169.254.169.254/v1",
+        user_agent=None,
+        token=None,
+        init_token=True,
+    ):
         """
         The main interface to the Linode Metadata Service.
         :param base_url: The base URL for Metadata API requests.  Generally, you shouldn't
@@ -48,26 +51,40 @@ class MetadataClient:
     @property
     def _user_agent(self):
         return "{}python-linode_api4/{} {}".format(
-                "{} ".format(self._append_user_agent) if self._append_user_agent else "",
-                package_version,
-                requests.utils.default_user_agent()
+            "{} ".format(self._append_user_agent)
+            if self._append_user_agent
+            else "",
+            package_version,
+            requests.utils.default_user_agent(),
         )
-    
+
     def check_connection(self):
         try:
             requests.get(self.base_url, timeout=10)
         except ConnectTimeout:
-            raise ConnectTimeout("Unable to reach Metadata service. Please check that you are running from inside a Linode.")
+            raise ConnectTimeout(
+                "Unable to reach Metadata service. Please check that you are running from inside a Linode."
+            )
 
-    def _api_call(self, method: str, endpoint: str, content_type="application/json", body=None, additional_headers=None, authenticated=True) -> Union[str, dict]:
+    def _api_call(
+        self,
+        method: str,
+        endpoint: str,
+        content_type="application/json",
+        body=None,
+        additional_headers=None,
+        authenticated=True,
+    ) -> Union[str, dict]:
         if authenticated and self._token is None:
-            raise RuntimeError("No token has been provided. Please use MetadataClient.refresh_token() to generate a new token.")
+            raise RuntimeError(
+                "No token has been provided. Please use MetadataClient.refresh_token() to generate a new token."
+            )
 
         method_map = {
             "GET": self.session.get,
             "POST": self.session.post,
             "PUT": self.session.put,
-            "DELETE": self.session.delete
+            "DELETE": self.session.delete,
         }
 
         method = method.upper()
@@ -78,7 +95,7 @@ class MetadataClient:
         headers = {
             "Content-Type": content_type,
             "Accept": content_type,
-            "User-Agent": self._user_agent
+            "User-Agent": self._user_agent,
         }
 
         if authenticated:
@@ -100,7 +117,9 @@ class MetadataClient:
             try:
                 j = resp.json()
                 if "errors" in j:
-                    error_fragments = [f"{e['reason']};" for e in j["errors"] if "reason" in e]
+                    error_fragments = [
+                        f"{e['reason']};" for e in j["errors"] if "reason" in e
+                    ]
                     error_msg += " ".join(error_fragments)
             except:
                 pass
@@ -133,13 +152,11 @@ class MetadataClient:
             additional_headers={
                 "Metadata-Token-Expiry-Seconds": str(expiry_seconds)
             },
-            authenticated=False
+            authenticated=False,
         )
 
         return MetadataToken(
-            token=resp,
-            expiry_seconds=expiry_seconds,
-            created=datetime.now()
+            token=resp, expiry_seconds=expiry_seconds, created=datetime.now()
         )
 
     def refresh_token(self, expiry_seconds: int = 3600):
@@ -150,30 +167,17 @@ class MetadataClient:
         self._token = token
 
     def get_user_data(self) -> str:
-        resp = self._api_call(
-            "GET",
-            "/user-data",
-            content_type="text/plain"
-        )
-        return base64.b64decode(resp).decode('utf-8')
+        resp = self._api_call("GET", "/user-data", content_type="text/plain")
+        return base64.b64decode(resp).decode("utf-8")
 
     def get_instance(self) -> InstanceResponse:
-        resp = self._api_call(
-            "GET",
-            "/instance"
-        )
-        return resp #InstanceResponse(json_data=resp)
+        resp = self._api_call("GET", "/instance")
+        return resp  # InstanceResponse(json_data=resp)
 
     def get_network(self) -> NetworkResponse:
-        resp = self._api_call(
-            "GET",
-            "/network"
-        )
+        resp = self._api_call("GET", "/network")
         return NetworkResponse(json_data=resp)
 
     def get_ssh_keys(self) -> SSHKeysResponse:
-        resp = self._api_call(
-            "GET",
-            "/ssh-keys"
-        )
+        resp = self._api_call("GET", "/ssh-keys")
         return SSHKeysResponse(json_data=resp)
