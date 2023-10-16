@@ -2,9 +2,9 @@ import base64
 import datetime
 import json
 from datetime import datetime
+from importlib.metadata import version
 from typing import Any, Union
 
-import pkg_resources
 import requests
 from requests import ConnectTimeout, Response
 
@@ -13,8 +13,6 @@ from linode_metadata.objects.error import ApiError
 from linode_metadata.objects.instance import InstanceResponse
 from linode_metadata.objects.ssh_keys import SSHKeysResponse
 from linode_metadata.objects.token import MetadataToken
-
-package_version = pkg_resources.require("linode_api4")[0].version
 
 
 class MetadataClient:
@@ -50,11 +48,11 @@ class MetadataClient:
 
     @property
     def _user_agent(self):
-        return "{}python-linode_api4/{} {}".format(
+        return "{}linode-metadata-python/{} {}".format(
             "{} ".format(self._append_user_agent)
             if self._append_user_agent
             else "",
-            package_version,
+            version("linode_metadata"),
             requests.utils.default_user_agent(),
         )
 

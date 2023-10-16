@@ -12,11 +12,7 @@ build: clean create-version
 
 @PHONEY: install
 install: build
-	pip install dist/*.whl
-
-@PHONEY: requirements
-requirements:
-	$(PYTHON) -m pip install -r requirements.txt
+	$(PYTHON) -m pip install dist/*.whl
 
 @PHONEY: create-version
 create-version:
