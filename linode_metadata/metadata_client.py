@@ -172,7 +172,7 @@ class MetadataClient:
 
     def get_instance(self) -> InstanceResponse:
         resp = self._api_call("GET", "/instance")
-        return resp  # InstanceResponse(json_data=resp)
+        return InstanceResponse(json_data=resp)
 
     def get_network(self) -> NetworkResponse:
         resp = self._api_call("GET", "/network")
