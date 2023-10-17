@@ -1,26 +1,43 @@
-from dataclasses import dataclass, field
-from typing import Optional, List
+"""
+Data classes related to Linode instances.
+"""
+from dataclasses import dataclass
+from typing import List, Optional
 
 from .response_base import ResponseBase
 
 
 @dataclass(init=False)
 class InstanceBackups(ResponseBase):
+    """
+    A backup of a Linode instance.
+    """
+
     enabled: bool
     status: Optional[List[str]]
 
+
 @dataclass(init=False)
 class InstanceSpecs(ResponseBase):
+    """
+    The technical specificatons of a Linode instance.
+    """
+
     vcpus: int
     disk: int
     memory: int
     transfer: int
     gpus: int
 
+
 @dataclass(init=False)
 class InstanceResponse(ResponseBase):
-    host_uuid: str
+    """
+    A Linode instance.
+    """
+
     id: int
+    host_uuid: str
     label: str
     region: str
     tags: str

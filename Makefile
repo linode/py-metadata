@@ -16,3 +16,25 @@ install: build
 @PHONEY: requirements
 requirements:
 	$(PYTHON) -m pip install -r requirements.txt
+
+.PHONY: lint
+lint: build
+	isort --check-only linode_metadata
+	autoflake --check linode_metadata
+	black --check --verbose linode_metadata
+	pylint linode_metadata
+
+.PHONY: black
+black:
+	black linode_metadata
+
+.PHONY: isort
+isort:
+	isort linode_metadata
+
+.PHONY: autoflake
+autoflake:
+	autoflake linode_metadata
+
+.PHONY: format
+format: black isort autoflake
