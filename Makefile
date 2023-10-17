@@ -1,5 +1,6 @@
 PYTHON ?= python3
-VERSION := ./linode_metadata/version.py
+LINODE_METADATA_VERSION ?= "0.0.0.dev"
+VERSION_FILE := ./linode_metadata/version.py
 
 @PHONEY: clean
 clean:
@@ -20,4 +21,4 @@ requirements:
 
 @PHONEY: create-version
 create-version:
-	@echo "__version__ = \"${LINODE_METADATA_VERSION}\"\n" > $(VERSION)
+	@echo "__version__ = \"${LINODE_METADATA_VERSION}\"\n" > $(VERSION_FILE)
