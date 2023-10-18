@@ -17,5 +17,5 @@ install: build
 
 @PHONEY: create-version
 create-version:
-	@echo "__version__ = \"${LINODE_METADATA_VERSION}\"\n" > $(VERSION_FILE)
+	@echo "__version__ = \"${LINODE_METADATA_VERSION}\"" > $(VERSION_FILE)
 
