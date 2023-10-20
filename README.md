@@ -42,3 +42,7 @@ print("Public IPv4:", network_info.ipv4.public[0])
 print("SSH Keys:", "; ".join(ssh_info.users.root))
 print("User Data:", user_data)
 ```
+
+## License
+
+This software is Copyright Akamai Technologies, Inc. and is released under the [Apache 2.0 license](./LICENSE).

@@ -6,9 +6,9 @@ import base64
 import datetime
 import json
 from datetime import datetime
+from importlib.metadata import version
 from typing import Any, Union
 
-import pkg_resources
 import requests
 from requests import ConnectTimeout, Response
 
@@ -17,8 +17,6 @@ from linode_metadata.objects.error import ApiError
 from linode_metadata.objects.instance import InstanceResponse
 from linode_metadata.objects.ssh_keys import SSHKeysResponse
 from linode_metadata.objects.token import MetadataToken
-
-package_version = pkg_resources.require("linode_api4")[0].version
 
 
 class MetadataClient:
@@ -42,6 +40,19 @@ class MetadataClient:
         token=None,
         init_token=True,
     ):
+        """
+        The main interface to the Linode Metadata Service.
+        :param base_url: The base URL for Metadata API requests.  Generally, you shouldn't
+                         change this.
+        :type base_url: str
+        :param user_agent: What to append to the User Agent of all requests made
+                           by this client.  Setting this allows Linode's internal
+                           monitoring applications to track the usage of your
+                           application.  Setting this is not necessary, but some
+                           applications may desire this behavior.
+        :type user_agent: str
+        """
+
         self.base_url = base_url
         self.session = requests.Session()
         self._append_user_agent = user_agent
