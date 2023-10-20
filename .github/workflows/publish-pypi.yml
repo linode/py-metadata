@@ -1,0 +1,29 @@
+name: release
+on:
+  workflow_dispatch: null
+  release:
+    types: [ published ]
+jobs:
+  pypi-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install Python deps
+        run: pip install wheel
+
+      - name: Build the package
+        run: make build
+        env:
+          LINODE_METADATA_VERSION: ${{ github.event.release.tag_name }}
+
+      - name: Publish the release artifacts to PyPI
+        uses: pypa/gh-action-pypi-publish@b7f401de30cb6434a1e19f805ff006643653240e # pin@release/v1.8.10
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}

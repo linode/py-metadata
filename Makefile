@@ -1,4 +1,6 @@
 PYTHON ?= python3
+LINODE_METADATA_VERSION ?= "0.0.0.dev"
+VERSION_FILE := ./linode_metadata/version.py
 
 # The path to the pubkey to configure the E2E testing instance with.
 TEST_PUBKEY ?= ~/.ssh/id_rsa.pub
@@ -8,17 +10,18 @@ clean:
 	rm -rf dist
 
 @PHONEY: build
-build: clean
+build: clean create-version
 	$(PYTHON) -m pip install -U build
 	$(PYTHON) -m build  --wheel --sdist
 
 @PHONEY: install
 install: build
-	pip install dist/*.whl
+	$(PYTHON) -m pip install dist/*.whl
 
-@PHONEY: requirements
-requirements:
-	$(PYTHON) -m pip install -r requirements.txt
+@PHONEY: create-version
+create-version:
+	@echo "__version__ = \"${LINODE_METADATA_VERSION}\"" > $(VERSION_FILE)
+
 
 
 test-deps:
