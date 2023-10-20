@@ -33,13 +33,16 @@ repository = "https://github.com/linode/py-metadata.git"
 [tool.setuptools.dynamic]
 version = { attr = "linode_metadata.version.__version__" }
 
+[tool.setuptools.packages.find]
+include = ["linode_metadata"]
+
 [tool.isort]
 profile = "black"
 line_length = 80
 
 [tool.black]
 line-length = 80
-target-version = ["py38", "py39", "py310", "py311"]
+target-version = ["py38", "py39", "py310", "py311", "py312"]
 
 [tool.autoflake]
 expand-star-imports = false
