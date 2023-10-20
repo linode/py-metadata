@@ -1,18 +1,21 @@
 PYTHON ?= python3
+LINODE_METADATA_VERSION ?= "0.0.0.dev"
+VERSION_FILE := ./linode_metadata/version.py
 
 @PHONEY: clean
 clean:
-	mkdir -p dist
-	rm -r dist
+	rm -rf dist
 
 @PHONEY: build
-build: clean requirements
+build: clean create-version
+	$(PYTHON) -m pip install -U build
 	$(PYTHON) -m build  --wheel --sdist
 
 @PHONEY: install
 install: build
-	pip install dist/*.whl
+	$(PYTHON) -m pip install dist/*.whl
 
-@PHONEY: requirements
-requirements:
-	pip install -r requirements.txt
+@PHONEY: create-version
+create-version:
+	@echo "__version__ = \"${LINODE_METADATA_VERSION}\"" > $(VERSION_FILE)
+

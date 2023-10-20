@@ -1,5 +1,5 @@
-from dataclasses import dataclass, field
-from typing import Optional, List
+from dataclasses import dataclass
+from typing import List, Optional
 
 from .response_base import ResponseBase
 
@@ -9,6 +9,7 @@ class InstanceBackups(ResponseBase):
     enabled: bool
     status: Optional[List[str]]
 
+
 @dataclass(init=False)
 class InstanceSpecs(ResponseBase):
     vcpus: int
@@ -16,6 +17,7 @@ class InstanceSpecs(ResponseBase):
     memory: int
     transfer: int
     gpus: int
+
 
 @dataclass(init=False)
 class InstanceResponse(ResponseBase):

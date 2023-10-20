@@ -2,6 +2,37 @@
 requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
+
+[project]
+name = "linode_metadata"
+authors = [{ name = "Linode", email = "developers@linode.com" }]
+description = "A client to interact with the Linode Metadata service in Python."
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "BSD-3-Clause" }
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Libraries",
+    "License :: OSI Approved :: BSD License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = ["requests"]
+dynamic = ["version"]
+
+[project.urls]
+homepage = "https://github.com/linode/py-metadata"
+repository = "https://github.com/linode/py-metadata.git"
+
+[tool.setuptools.dynamic]
+version = { attr = "linode_metadata.version.__version__" }
+
 [tool.isort]
 profile = "black"
 line_length = 80
