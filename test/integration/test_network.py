@@ -5,7 +5,6 @@ from linode_metadata.objects.networking import IPv4Networking, IPv6Networking
 def test_get_network_info(get_client):
     network = get_client.get_network()
 
-    # Assert the data types of each attribute's value
     assert isinstance(network.interfaces, list)
     assert isinstance(network.ipv4, IPv4Networking)
     assert isinstance(network.ipv6, IPv6Networking)
