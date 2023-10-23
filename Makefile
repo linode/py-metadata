@@ -25,7 +25,7 @@ create-version:
 
 
 test-deps:
-	pip3 install --upgrade ansible -r https://raw.githubusercontent.com/linode/ansible_linode/main/requirements.txt
+	$(PYTHON) -m pip install --upgrade ansible -r https://raw.githubusercontent.com/linode/ansible_linode/main/requirements.txt
 	ansible-galaxy collection install linode.cloud
 
 # Runs the E2E test suite on a host provisioned by Ansible.

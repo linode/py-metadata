@@ -74,7 +74,6 @@
             executable: /bin/bash
           shell: |
             cd /py-metadata-{{ run_id }} && \
-            pip3 install -r requirements.txt && \
             make install
 
         - name: Write the configuration to an env file

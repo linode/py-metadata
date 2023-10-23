@@ -23,7 +23,12 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
 ]
-dependencies = ["linode-api4>=5.7.2", "requests", "pytest"]
+dependencies = ["requests"]
+
+[project.optional-dependencies]
+test = ["pytest"]
+dev = ["linode-api4>=5.7.2"]
+
 dynamic = ["version"]
 
 [project.urls]
@@ -34,7 +39,7 @@ repository = "https://github.com/linode/py-metadata.git"
 version = { attr = "linode_metadata.version.__version__" }
 
 [tool.setuptools]
-packages = ["linode_metadata", "linode_metadata.objects"]
+packages = ["linode_metadata*"]
 
 [tool.isort]
 profile = "black"
