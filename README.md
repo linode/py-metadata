@@ -1,10 +1,31 @@
 # Linode Metadata Client for Python
 
-This package contains a client to interact with the Linode Metadata service in Python.
+This package allows Python projects to easily interact with the [Linode Metadata Service](https://www.linode.com/docs/products/compute/compute-instances/guides/metadata/?tabs=linode-api).
 
-## Usage
+## Getting Started
 
-Run ```make install``` to install the metadata client onto your machine. After doing so, the following code sample can help you quickly get started using this package.
+### Prerequisites 
+
+- Python >= 3.8
+- A running [Linode Instance](https://www.linode.com/docs/api/linode-instances/)
+
+### Installation
+
+```bash
+pip install linode-metadata
+```
+
+### Building from Source
+To build and install this package:
+
+- Clone this repository
+- `make install`
+
+### Basic Example
+
+The follow sample shows a simple Python project that initializes a new metadata client and retrieves various information
+about the current Linode.
+
 
 ```python
 import linode_metadata
