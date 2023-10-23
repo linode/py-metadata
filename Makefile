@@ -22,7 +22,9 @@ install: build
 create-version:
 	@echo "__version__ = \"${LINODE_METADATA_VERSION}\"" > $(VERSION_FILE)
 
-
+@PHONEY: dev-install
+dev-install: create-version
+	$(PYTHON) -m pip install -e "[.dev]"
 
 test-deps:
 	$(PYTHON) -m pip install --upgrade ansible -r https://raw.githubusercontent.com/linode/ansible_linode/main/requirements.txt
