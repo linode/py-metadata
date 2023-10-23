@@ -19,10 +19,6 @@ install: build
 create-version:
 	@echo "__version__ = \"${LINODE_METADATA_VERSION}\"" > $(VERSION_FILE)
 
-@PHONEY: requirements
-requirements:
-	$(PYTHON) -m pip install -r requirements.txt
-
 .PHONY: lint
 lint: build
 	isort --check-only linode_metadata
