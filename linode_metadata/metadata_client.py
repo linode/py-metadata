@@ -1,3 +1,7 @@
+"""
+This class provides functions for interacting with the Linode Metadata service.
+It includes methods for retrieving and updating metadata information.
+"""
 import base64
 import datetime
 import json
@@ -16,6 +20,19 @@ from linode_metadata.objects.token import MetadataToken
 
 
 class MetadataClient:
+    """
+    The main interface to the Linode Metadata Service.
+    :param base_url: The base URL for Metadata API requests.  Generally, you shouldn't
+                     change this.
+    :type base_url: str
+    :param user_agent: What to append to the User Agent of all requests made
+                       by this client.  Setting this allows Linode's internal
+                       monitoring applications to track the usage of your
+                       application.  Setting this is not necessary, but some
+                       applications may desire this behavior.
+    :type user_agent: str
+    """
+
     def __init__(
         self,
         base_url="http://169.254.169.254/v1",
@@ -48,20 +65,21 @@ class MetadataClient:
 
     @property
     def _user_agent(self):
-        return "{}linode-metadata-python/{} {}".format(
-            "{} ".format(self._append_user_agent)
-            if self._append_user_agent
-            else "",
-            version("linode_metadata"),
-            requests.utils.default_user_agent(),
+        append_user_agent = (
+            f"{self._append_user_agent} " if self._append_user_agent else ""
         )
+        default_user_agent = requests.utils.default_user_agent()
+        return f"{append_user_agent}python-linode_api4/{package_version} {default_user_agent}"
 
     def check_connection(self):
+        """
+        Checks for a connection to the Metadata Service, ensuring customer is inside a Linode.
+        """
         try:
             requests.get(self.base_url, timeout=10)
         except ConnectTimeout:
             raise ConnectTimeout(
-                "Unable to reach Metadata service. Please check that you are running from inside a Linode."
+                "Can't access Metadata service. Please verify that you are inside a Linode."
             )
 
     def _api_call(
@@ -75,7 +93,7 @@ class MetadataClient:
     ) -> Union[str, dict]:
         if authenticated and self._token is None:
             raise RuntimeError(
-                "No token has been provided. Please use MetadataClient.refresh_token() to generate a new token."
+                "No token provided. Please use MetadataClient.refresh_token() to create new token."
             )
 
         method_map = {
@@ -143,6 +161,9 @@ class MetadataClient:
         return handler()
 
     def generate_token(self, expiry_seconds=3600) -> MetadataToken:
+        """
+        Generates a token for accessing Metadata Service.
+        """
         resp = self._api_call(
             "PUT",
             "/token",
@@ -158,24 +179,42 @@ class MetadataClient:
         )
 
     def refresh_token(self, expiry_seconds: int = 3600):
+        """
+        Regenerates a Metadata Service token.
+        """
         result = self.generate_token(expiry_seconds=expiry_seconds)
         self.set_token(result.token)
 
     def set_token(self, token: str):
+        """
+        Sets the passed token as token for client.
+        """
         self._token = token
 
     def get_user_data(self) -> str:
+        """
+        Returns the user data configured on your running Linode instance.
+        """
         resp = self._api_call("GET", "/user-data", content_type="text/plain")
         return base64.b64decode(resp).decode("utf-8")
 
     def get_instance(self) -> InstanceResponse:
+        """
+        Returns information about the running Linode instance.
+        """
         resp = self._api_call("GET", "/instance")
         return InstanceResponse(json_data=resp)
 
     def get_network(self) -> NetworkResponse:
+        """
+        Returns information about the running Linode instance’s network configuration.
+        """
         resp = self._api_call("GET", "/network")
         return NetworkResponse(json_data=resp)
 
     def get_ssh_keys(self) -> SSHKeysResponse:
+        """
+        Get a mapping of public SSH Keys configured on your running Linode instance.
+        """
         resp = self._api_call("GET", "/ssh-keys")
         return SSHKeysResponse(json_data=resp)

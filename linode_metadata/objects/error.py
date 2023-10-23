@@ -1,3 +1,6 @@
+"""
+Data classes related to error handling.
+"""
 from builtins import super
 
 

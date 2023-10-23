@@ -1,3 +1,7 @@
+"""
+This class is the base class for response classes.
+It includes basic methods for handling JSON responses.
+"""
 import dataclasses
 from dataclasses import dataclass
 from typing import Any, Dict
@@ -5,11 +9,20 @@ from typing import Any, Dict
 
 @dataclass(init=False)
 class ResponseBase:
+    """
+    The base class for responses from the Linode Metadata Service.
+    :param json_data: The JSON data that will be used to build an instance of a response class.
+    :type json_data: Dict[str, Any]
+    """
+
     def __init__(self, json_data: Dict[str, Any] = None):
         if json_data is not None:
             self.populate(json_data)
 
     def populate(self, json_data):
+        """
+        Populates the fields in a response dataclass using the passed JSON data.
+        """
         fields = dataclasses.fields(self)
         for field in fields:
             # Resolve the corresponding JSON key allowing for overrides
@@ -35,6 +48,9 @@ class ResponseBase:
 
     @staticmethod
     def _resolve_underlying_type(t):
+        """
+        Resolves the type of an object.
+        """
         if isinstance(t, type):
             return t
 
