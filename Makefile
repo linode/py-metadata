@@ -24,7 +24,7 @@ create-version:
 
 @PHONEY: dev-install
 dev-install: create-version
-	$(PYTHON) -m pip install -e "[.dev]"
+	$(PYTHON) -m pip install -e ".[dev]"
 
 test-deps:
 	$(PYTHON) -m pip install --upgrade ansible -r https://raw.githubusercontent.com/linode/ansible_linode/main/requirements.txt
@@ -37,7 +37,7 @@ e2e:
 # Runs the E2E test suite locally.
 # NOTE: E2E tests must be run from within a Linode.
 e2e-local:
-	cd test && make e2e-local-int
+	pytest test/integration/
 
 .PHONY: lint
 lint: build

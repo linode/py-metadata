@@ -74,7 +74,7 @@
             executable: /bin/bash
           shell: |
             cd /py-metadata-{{ run_id }} && \
-            make install
+            make dev-install
 
         - name: Write the configuration to an env file
           copy:
