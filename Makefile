@@ -37,26 +37,26 @@ e2e:
 # Runs the E2E test suite locally.
 # NOTE: E2E tests must be run from within a Linode.
 e2e-local:
-	pytest test/integration/
+	$(PYTHON) -m pytest test/integration/
 
 .PHONY: lint
 lint: build
-	isort --check-only linode_metadata test
-	autoflake --check linode_metadata test
-	black --check --verbose linode_metadata test
-	pylint linode_metadata test
+	$(PYTHON) -m isort --check-only linode_metadata test
+	$(PYTHON) -m autoflake --check linode_metadata test
+	$(PYTHON) -m black --check --verbose linode_metadata test
+	$(PYTHON) -m pylint linode_metadata test
 
 .PHONY: black
 black:
-	black linode_metadata test
+	$(PYTHON) -m black linode_metadata test
 
 .PHONY: isort
 isort:
-	isort linode_metadata test
+	$(PYTHON) -m isort linode_metadata test
 
 .PHONY: autoflake
 autoflake:
-	autoflake linode_metadata test
+	$(PYTHON) -m autoflake linode_metadata test
 
 .PHONY: format
 format: black isort autoflake

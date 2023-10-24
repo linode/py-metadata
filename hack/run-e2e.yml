@@ -54,6 +54,7 @@
   gather_facts: no
   vars:
     debug: 0
+    venv_python: "/py-metadata-{{ run_id }}/venv/bin/python"
   tasks:
     - block:
         - name: Update repositories and install necessary packages
@@ -74,7 +75,8 @@
             executable: /bin/bash
           shell: |
             cd /py-metadata-{{ run_id }} && \
-            make dev-install
+            python3 -m venv venv && \
+            PYTHON={{ venv_python }} make dev-install
 
         - name: Write the configuration to an env file
           copy:
@@ -90,7 +92,7 @@
           shell: |
             cd /py-metadata-{{ run_id }} && \
             source .test.env && \
-            make e2e-local
+            PYTHON={{ venv_python }} make e2e-local
           register: run_tests
 
       rescue:
