@@ -69,7 +69,11 @@ class MetadataClient:
             f"{self._append_user_agent} " if self._append_user_agent else ""
         )
         default_user_agent = requests.utils.default_user_agent()
-        return f"{append_user_agent}python-linode_api4/{package_version} {default_user_agent}"
+        return (
+            f"{append_user_agent}"
+            f"linode-py-metadata/{version('linode_metadata')} "
+            f"{default_user_agent}"
+        ).strip()
 
     def check_connection(self):
         """
