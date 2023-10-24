@@ -1,4 +1,5 @@
 import re
+
 from linode_metadata.objects.ssh_keys import SSHKeysUser
 
 
@@ -9,6 +10,8 @@ def test_get_ssh_keys(get_client):
     for key in ssh.users.root:
         assert isinstance(key, str)
 
-    ssh_key_pattern = re.compile(r'^ssh-(?:rsa|ed25519|ecdsa|dss)\s[A-Za-z0-9+/]+[=]*\s\S*$')
+    ssh_key_pattern = re.compile(
+        r"^ssh-(?:rsa|ed25519|ecdsa|dss)\s[A-Za-z0-9+/]+[=]*\s\S*$"
+    )
     for key in ssh.users.root:
         assert ssh_key_pattern.match(key)

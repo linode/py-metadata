@@ -1,5 +1,7 @@
-import pytest
 from datetime import datetime
+
+import pytest
+
 from linode_metadata.objects.error import ApiError
 
 
@@ -43,6 +45,3 @@ def test_verify_error_thrown_when_using_invalid_api_token(get_client):
         assert network is not None
     except ApiError as err:
         raise err
-
-
-

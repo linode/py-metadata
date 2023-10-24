@@ -21,4 +21,5 @@ class SSHKeysResponse(ResponseBase):
     """
     The users' and their SSH Keys associated with a Linode instance.
     """
+
     users: SSHKeysUser

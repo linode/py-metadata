@@ -24,7 +24,7 @@ create-version:
 
 @PHONEY: dev-install
 dev-install: create-version
-	$(PYTHON) -m pip install -e "[.dev]"
+	$(PYTHON) -m pip install -e ".[dev]"
 
 test-deps:
 	$(PYTHON) -m pip install --upgrade ansible -r https://raw.githubusercontent.com/linode/ansible_linode/main/requirements.txt
@@ -37,26 +37,26 @@ e2e:
 # Runs the E2E test suite locally.
 # NOTE: E2E tests must be run from within a Linode.
 e2e-local:
-	cd test && make e2e-local-int
+	$(PYTHON) -m pytest test/integration/
 
 .PHONY: lint
 lint: build
-	isort --check-only linode_metadata
-	autoflake --check linode_metadata
-	black --check --verbose linode_metadata
-	pylint linode_metadata
+	$(PYTHON) -m isort --check-only linode_metadata test
+	$(PYTHON) -m autoflake --check linode_metadata test
+	$(PYTHON) -m black --check --verbose linode_metadata test
+	$(PYTHON) -m pylint linode_metadata test
 
 .PHONY: black
 black:
-	black linode_metadata
+	$(PYTHON) -m black linode_metadata test
 
 .PHONY: isort
 isort:
-	isort linode_metadata
+	$(PYTHON) -m isort linode_metadata test
 
 .PHONY: autoflake
 autoflake:
-	autoflake linode_metadata
+	$(PYTHON) -m autoflake linode_metadata test
 
 .PHONY: format
 format: black isort autoflake
