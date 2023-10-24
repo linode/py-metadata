@@ -3,8 +3,8 @@ import re
 from linode_metadata.objects.ssh_keys import SSHKeysUser
 
 
-def test_get_ssh_keys(get_client):
-    ssh = get_client.get_ssh_keys()
+def test_get_ssh_keys(metadata_client):
+    ssh = metadata_client.get_ssh_keys()
     assert isinstance(ssh.users, SSHKeysUser)
 
     for key in ssh.users.root:

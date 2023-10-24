@@ -1,8 +1,8 @@
 import re
 
 
-def test_get_instance_info(get_client):
-    instance = get_client.get_instance()
+def test_get_instance_info(metadata_client):
+    instance = metadata_client.get_instance()
 
     assert isinstance(instance.id, int)
     assert re.match(r"^[a-z\-]+$", instance.label)

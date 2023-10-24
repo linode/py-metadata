@@ -4,6 +4,6 @@ import linode_metadata
 
 
 @pytest.fixture(scope="session")
-def get_client():
+def metadata_client():
     client = linode_metadata.MetadataClient()
     return client

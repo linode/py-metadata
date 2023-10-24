@@ -3,8 +3,8 @@ import re
 from linode_metadata.objects.networking import IPv4Networking, IPv6Networking
 
 
-def test_get_network_info(get_client):
-    network = get_client.get_network()
+def test_get_network_info(metadata_client):
+    network = metadata_client.get_network()
 
     assert isinstance(network.interfaces, list)
     assert isinstance(network.ipv4, IPv4Networking)
