@@ -41,22 +41,22 @@ e2e-local:
 
 .PHONY: lint
 lint: build
-	isort --check-only linode_metadata
-	autoflake --check linode_metadata
-	black --check --verbose linode_metadata
-	pylint linode_metadata
+	isort --check-only linode_metadata test
+	autoflake --check linode_metadata test
+	black --check --verbose linode_metadata test
+	pylint linode_metadata test
 
 .PHONY: black
 black:
-	black linode_metadata
+	black linode_metadata test
 
 .PHONY: isort
 isort:
-	isort linode_metadata
+	isort linode_metadata test
 
 .PHONY: autoflake
 autoflake:
-	autoflake linode_metadata
+	autoflake linode_metadata test
 
 .PHONY: format
 format: black isort autoflake
