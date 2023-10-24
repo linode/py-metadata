@@ -70,7 +70,7 @@ class MetadataClient:
         )
         default_user_agent = requests.utils.default_user_agent()
         return (
-            f"{append_user_agent}"
+            f"{append_user_agent} "
             f"linode-py-metadata/{version('linode_metadata')} "
             f"{default_user_agent}"
         ).strip()
