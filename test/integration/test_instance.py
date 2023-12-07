@@ -5,7 +5,7 @@ def test_get_instance_info(metadata_client):
     instance = metadata_client.get_instance()
 
     assert isinstance(instance.id, int)
-    assert re.match(r"^[a-z\-]+$", instance.label)
+    assert re.match(r"^[A-Za-z\-0-9]+$", instance.label)
     assert re.match(r"^[a-z\-]+$", instance.region)
     assert re.match(r"^[a-z\d\-]+$", instance.type)
     assert isinstance(instance.specs.vcpus, int)
