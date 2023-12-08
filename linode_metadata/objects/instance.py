@@ -10,7 +10,7 @@ from .response_base import ResponseBase
 @dataclass(init=False)
 class InstanceBackups(ResponseBase):
     """
-    A backup of a Linode instance.
+    The status of the Linode instance's backups enrollment.
     """
 
     enabled: bool
@@ -20,7 +20,7 @@ class InstanceBackups(ResponseBase):
 @dataclass(init=False)
 class InstanceSpecs(ResponseBase):
     """
-    The technical specificatons of a Linode instance.
+    The technical specifications of a Linode instance.
     """
 
     vcpus: int

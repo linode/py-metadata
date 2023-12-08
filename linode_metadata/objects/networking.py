@@ -10,7 +10,7 @@ from .response_base import ResponseBase
 @dataclass(init=False)
 class Interfaces(ResponseBase):
     """
-    An interface(VLAN) attached to a Linode instance.
+    A network interface attached to a Linode instance.
     """
 
     label: str
@@ -32,7 +32,7 @@ class IPv4Networking(ResponseBase):
 @dataclass(init=False)
 class IPv6Networking(ResponseBase):
     """
-    Information regarding IPv6 adresses.
+    Information regarding IPv6 addresses.
     """
 
     slaac: str
