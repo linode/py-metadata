@@ -10,4 +10,3 @@ dist
 venv
 .vscode
 .DS_Store
-linode_metadata/version.py
