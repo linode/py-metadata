@@ -69,7 +69,7 @@ jobs:
         run: ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa -N ""
 
       - name: run e2e test
-        run: make e2e
+        run: CLEANUP_TEST_LINODE_INSTANCE=true make e2e
         env:
           CLEANUP_TEST_LINODE_INSTANCE: true
           LINODE_TOKEN: ${{ secrets.DX_LINODE_TOKEN }}
