@@ -4,8 +4,8 @@
   vars:
     ssh_pubkey_path: ~/.ssh/id_rsa.pub
     label: py-metadata-test
-    type: g6-standard-2
-    region: us-iad
+    type: g6-nanode-1
+    region: us-ord
     temp_token_name: py-metadata-dev
     token_duration_seconds: 3600
   tasks:
@@ -102,10 +102,17 @@
 - name: Clean up
   hosts: localhost
   gather_facts: no
+
   tasks:
     - name: Remove the temp token
       linode.cloud.token:
         label: "{{ temp_token_name }}-{{ run_id }}"
+        state: absent
+
+    - name: Cleanup Linode instance
+      when: cleanup_linode
+      linode.cloud.instance:
+        label: "{{ label_prefix }}-{{ runner_id }}"
         state: absent
 
     - name: Exit if tests failed
