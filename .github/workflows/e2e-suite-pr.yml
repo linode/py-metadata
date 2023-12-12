@@ -1,0 +1,103 @@
+on:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      sha:
+        description: 'The hash value of the commit.'
+        required: true
+      pull_request_number:
+        description: 'The number of the PR.'
+        required: false
+
+name: PR E2E Tests
+
+jobs:
+  integration-fork-ubuntu:
+    runs-on: ubuntu-latest
+    if:
+      github.event_name == 'workflow_dispatch' && inputs.sha != ''
+    env:
+      EXIT_STATUS: 0
+
+    steps:
+      # Check out merge commit
+      - name: Checkout PR
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.sha }}
+
+      - name: Get the hash value of the latest commit from the PR branch
+        uses: octokit/graphql-action@v2.x
+        id: commit-hash
+        if: ${{ inputs.pull_request_number != '' }}
+        with:
+          query: |
+            query PRHeadCommitHash($owner: String!, $repo: String!, $pr_num: Int!) {
+              repository(owner:$owner, name:$repo) {
+                pullRequest(number: $pr_num) {
+                  headRef {
+                    target {
+                      ... on Commit {
+                        oid
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          owner: ${{ github.event.repository.owner.login }}
+          repo: ${{ github.event.repository.name }}
+          pr_num: ${{ fromJSON(inputs.pull_request_number) }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: update packages
+        run: sudo apt-get update -y
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: install or update Python build system
+        run: python3 -m pip install -U wheel setuptools certifi pip
+
+      - name: install test dependencies
+        run: make test-deps
+
+      - name: generate local SSH key
+        run: ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa -N ""
+
+      - name: run e2e test
+        run: make e2e
+        env:
+          CLEANUP_TEST_LINODE_INSTANCE: true
+          LINODE_TOKEN: ${{ secrets.DX_LINODE_TOKEN }}
+
+      - uses: actions/github-script@v6
+        id: update-check-run
+        if: ${{ inputs.pull_request_number != '' && fromJson(steps.commit-hash.outputs.data).repository.pullRequest.headRef.target.oid == inputs.sha }}
+        env:
+          number: ${{ inputs.pull_request_number }}
+          job: ${{ github.job }}
+          conclusion: ${{ job.status }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { data: pull } = await github.rest.pulls.get({
+              ...context.repo,
+              pull_number: process.env.number
+            });
+            const ref = pull.head.sha;
+            const { data: checks } = await github.rest.checks.listForRef({
+              ...context.repo,
+              ref
+            });
+            const check = checks.check_runs.filter(c => c.name === process.env.job);
+            const { data: result } = await github.rest.checks.update({
+              ...context.repo,
+              check_run_id: check[0].id,
+              status: 'completed',
+              conclusion: process.env.conclusion
+            });
+            return result;
