@@ -30,7 +30,9 @@ def test_generate_and_use_new_metadata_token(metadata_client_unmanaged):
         raise err
 
 
-def test_verify_error_thrown_when_using_invalid_api_token(metadata_client_unmanaged):
+def test_verify_error_thrown_when_using_invalid_api_token(
+    metadata_client_unmanaged,
+):
     invalid_token = "1234randominvalidtoken"
 
     client = metadata_client_unmanaged

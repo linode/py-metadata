@@ -65,7 +65,9 @@ class MetadataClient:
         """
 
         if token is not None and managed_token:
-            raise ValueError("Token cannot be specified with token management is enabled")
+            raise ValueError(
+                "Token cannot be specified with token management is enabled"
+            )
 
         self.base_url = base_url
         self.session = requests.Session()
@@ -124,9 +126,9 @@ class MetadataClient:
 
             # We should implicitly refresh the token if the user is enrolled in
             # token management and the token has expired.
-            if (
-                self._managed_token
-                and (self._token is None or datetime.now() > self._managed_token_expiry)
+            if self._managed_token and (
+                self._token is None
+                or datetime.now() > self._managed_token_expiry
             ):
                 self.refresh_token(
                     expiry_seconds=self._managed_token_expiry_seconds
