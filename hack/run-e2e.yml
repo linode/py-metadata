@@ -3,7 +3,7 @@
   hosts: localhost
   vars:
     ssh_pubkey_path: ~/.ssh/id_rsa.pub
-    label: py-metadata-test
+    label_prefix: py-metadata-test
     type: g6-nanode-1
     region: us-ord
     temp_token_name: py-metadata-dev
