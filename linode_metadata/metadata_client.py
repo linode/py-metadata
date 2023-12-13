@@ -239,6 +239,13 @@ class MetadataClient:
         """
         self._token = token
 
+    @property
+    def token(self):
+        """
+        Gets the token currently used by this client.
+        """
+        return self._token
+
     def get_user_data(self) -> str:
         """
         Returns the user data configured on your running Linode instance.
