@@ -53,7 +53,8 @@ class MetadataClient:
                            application.  Setting this is not necessary, but some
                            applications may desire this behavior.
         :type user_agent: str
-        :param token: An existing token to use with this client.
+        :param token: An existing token to use with this client. This field cannot
+                      be specified when token management is enabled.
         :type token: Optional[str]
         :param managed_token: If true, the token for this client will be automatically
                               generated and refreshed.
@@ -62,6 +63,9 @@ class MetadataClient:
                                             should expire. (Default 3600)
         :type managed_token_expiry_seconds: int
         """
+
+        if token is not None and managed_token:
+            raise ValueError("Token cannot be specified with token management is enabled")
 
         self.base_url = base_url
         self.session = requests.Session()
@@ -195,6 +199,8 @@ class MetadataClient:
     def generate_token(self, expiry_seconds=3600) -> MetadataToken:
         """
         Generates a token for accessing Metadata Service.
+        NOTE: The generated token will NOT be implicitly
+        applied to the MetadataClient.
         """
 
         created = datetime.now()
