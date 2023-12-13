@@ -27,7 +27,7 @@ dependencies = ["requests"]
 dynamic = ["version"]
 
 [project.optional-dependencies]
-dev = ["pytest"]
+dev = ["pytest", "black", "isort", "autoflake"]
 
 [project.urls]
 homepage = "https://github.com/linode/py-metadata"

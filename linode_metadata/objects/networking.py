@@ -36,9 +36,9 @@ class IPv6Networking(ResponseBase):
     """
 
     slaac: str
-    link_local: List[str] = field(metadata={"json": "link-local"})
+    link_local: str = field(metadata={"json": "link_local"})
     ranges: List[str]
-    shared_ranges: List[str] = field(metadata={"json": "shared-ranges"})
+    shared_ranges: List[str] = field(metadata={"json": "shared_ranges"})
 
 
 @dataclass(init=False)
