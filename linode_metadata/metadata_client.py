@@ -126,7 +126,7 @@ class MetadataClient:
             # token management and the token has expired.
             if (
                 self._managed_token
-                and datetime.now() > self._managed_token_expiry
+                and (self._token is None or datetime.now() > self._managed_token_expiry)
             ):
                 self.refresh_token(
                     expiry_seconds=self._managed_token_expiry_seconds

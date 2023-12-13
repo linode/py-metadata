@@ -38,6 +38,7 @@ instance_info = client.get_instance()
 network_info = client.get_network()
 ssh_info = client.get_ssh_keys()
 user_data = client.get_user_data()
+
 print("Instance ID:", instance_info.id)
 print("Public IPv4:", network_info.ipv4.public[0])
 print("SSH Keys:", "; ".join(ssh_info.users.root))
