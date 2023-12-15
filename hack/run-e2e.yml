@@ -23,6 +23,7 @@
 
     - set_fact:
         run_id: '{{ ansible_date_time.epoch }}'
+        label_prefix: "{{ label_prefix }}"
         temp_token_name: '{{ temp_token_name }}'
         ssh_pubkey: '{{ lookup("file", ssh_pubkey_path) }}'
         runner_id: '{{ lookup("file", playbook_dir ~ "/.e2e-runner-id") }}'
