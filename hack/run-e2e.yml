@@ -41,6 +41,7 @@
       register: temp_token
 
     - name: Ensure the test instance is created
+      no_log: true
       linode.cloud.instance:
         label: "{{ label_prefix }}-{{ runner_id }}"
         type: "{{ type }}"
