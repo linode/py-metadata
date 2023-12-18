@@ -4,8 +4,8 @@
   vars:
     ssh_pubkey_path: ~/.ssh/id_rsa.pub
     label_prefix: py-metadata-test
-    type: g6-standard-1
-    region: us-iad
+    type: g6-nanode-1
+    region: us-ord
     temp_token_name: py-metadata-dev
     token_duration_seconds: 3600
   tasks:
@@ -23,11 +23,13 @@
 
     - set_fact:
         run_id: '{{ ansible_date_time.epoch }}'
+        label_prefix: "{{ label_prefix }}"
         temp_token_name: '{{ temp_token_name }}'
         ssh_pubkey: '{{ lookup("file", ssh_pubkey_path) }}'
         runner_id: '{{ lookup("file", playbook_dir ~ "/.e2e-runner-id") }}'
 
     - name: Create a temporary token for the plugin to consume
+      no_log: true
       linode.cloud.token:
         label: "{{ temp_token_name }}-{{ run_id }}"
         scopes: "events:read_write linodes:read_write"
@@ -39,6 +41,7 @@
       register: temp_token
 
     - name: Ensure the test instance is created
+      no_log: true
       linode.cloud.instance:
         label: "{{ label_prefix }}-{{ runner_id }}"
         type: "{{ type }}"
@@ -54,6 +57,7 @@
       wait_for: host="{{ create_inst.instance.ipv4[0] }}" port=22 delay=1  timeout=300
 
     - name: Append host to the in-memory inventory
+      no_log: true
       add_host:
         hostname: "test-runner"
         ansible_host: "{{ create_inst.instance.ipv4[0] }}"
@@ -132,10 +136,18 @@
 - name: Clean up
   hosts: localhost
   gather_facts: no
+
   tasks:
     - name: Remove the temp token
+      no_log: true
       linode.cloud.token:
         label: "{{ temp_token_name }}-{{ run_id }}"
+        state: absent
+
+    - name: Cleanup Linode instance
+      when: cleanup_linode|bool
+      linode.cloud.instance:
+        label: "{{ label_prefix }}-{{ runner_id }}"
         state: absent
 
     - name: Exit if tests failed
