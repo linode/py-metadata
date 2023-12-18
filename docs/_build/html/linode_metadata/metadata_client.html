@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>&lt;no title&gt; &#8212; py-metadata  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=4f649999" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=039e1c02" />
+    <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="&lt;no title&gt;" href="objects/instance.html" />
+    <link rel="prev" title="Welcome to py-metadata’s documentation!" href="../index.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <dl class="py class">
+<dt class="sig sig-object py" id="linode_metadata.MetadataClient">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">linode_metadata.</span></span><span class="sig-name descname"><span class="pre">MetadataClient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_url</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'http://169.254.169.254/v1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_agent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_token</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#linode_metadata.MetadataClient" title="Link to this definition">¶</a></dt>
+<dd><p>The main interface to the Linode Metadata Service.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>base_url</strong> (<em>str</em>) – The base URL for Metadata API requests.  Generally, you shouldn’t
+change this.</p></li>
+<li><p><strong>user_agent</strong> (<em>str</em>) – What to append to the User Agent of all requests made
+by this client.  Setting this allows Linode’s internal
+monitoring applications to track the usage of your
+application.  Setting this is not necessary, but some
+applications may desire this behavior.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="linode_metadata.MetadataClient.check_connection">
+<span class="sig-name descname"><span class="pre">check_connection</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#linode_metadata.MetadataClient.check_connection" title="Link to this definition">¶</a></dt>
+<dd><p>Checks for a connection to the Metadata Service, ensuring customer is inside a Linode.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="linode_metadata.MetadataClient.generate_token">
+<span class="sig-name descname"><span class="pre">generate_token</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expiry_seconds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3600</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">MetadataToken</span></span></span><a class="headerlink" href="#linode_metadata.MetadataClient.generate_token" title="Link to this definition">¶</a></dt>
+<dd><p>Generates a token for accessing Metadata Service.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="linode_metadata.MetadataClient.get_instance">
+<span class="sig-name descname"><span class="pre">get_instance</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="objects/instance.html#linode_metadata.objects.instance.InstanceResponse" title="linode_metadata.objects.instance.InstanceResponse"><span class="pre">InstanceResponse</span></a></span></span><a class="headerlink" href="#linode_metadata.MetadataClient.get_instance" title="Link to this definition">¶</a></dt>
+<dd><p>Returns information about the running Linode instance.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="linode_metadata.MetadataClient.get_network">
+<span class="sig-name descname"><span class="pre">get_network</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="objects/networking.html#linode_metadata.objects.networking.NetworkResponse" title="linode_metadata.objects.networking.NetworkResponse"><span class="pre">NetworkResponse</span></a></span></span><a class="headerlink" href="#linode_metadata.MetadataClient.get_network" title="Link to this definition">¶</a></dt>
+<dd><p>Returns information about the running Linode instance’s network configuration.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="linode_metadata.MetadataClient.get_ssh_keys">
+<span class="sig-name descname"><span class="pre">get_ssh_keys</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="objects/ssh_keys.html#linode_metadata.objects.ssh_keys.SSHKeysResponse" title="linode_metadata.objects.ssh_keys.SSHKeysResponse"><span class="pre">SSHKeysResponse</span></a></span></span><a class="headerlink" href="#linode_metadata.MetadataClient.get_ssh_keys" title="Link to this definition">¶</a></dt>
+<dd><p>Get a mapping of public SSH Keys configured on your running Linode instance.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="linode_metadata.MetadataClient.get_user_data">
+<span class="sig-name descname"><span class="pre">get_user_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#linode_metadata.MetadataClient.get_user_data" title="Link to this definition">¶</a></dt>
+<dd><p>Returns the user data configured on your running Linode instance.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="linode_metadata.MetadataClient.refresh_token">
+<span class="sig-name descname"><span class="pre">refresh_token</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expiry_seconds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3600</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#linode_metadata.MetadataClient.refresh_token" title="Link to this definition">¶</a></dt>
+<dd><p>Regenerates a Metadata Service token.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="linode_metadata.MetadataClient.set_token">
+<span class="sig-name descname"><span class="pre">set_token</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#linode_metadata.MetadataClient.set_token" title="Link to this definition">¶</a></dt>
+<dd><p>Sets the passed token as token for client.</p>
+</dd></dl>
+
+</dd></dl>
+
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">py-metadata</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">MetadataClient</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#linode_metadata.MetadataClient.check_connection"><code class="docutils literal notranslate"><span class="pre">MetadataClient.check_connection()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#linode_metadata.MetadataClient.generate_token"><code class="docutils literal notranslate"><span class="pre">MetadataClient.generate_token()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#linode_metadata.MetadataClient.get_instance"><code class="docutils literal notranslate"><span class="pre">MetadataClient.get_instance()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#linode_metadata.MetadataClient.get_network"><code class="docutils literal notranslate"><span class="pre">MetadataClient.get_network()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#linode_metadata.MetadataClient.get_ssh_keys"><code class="docutils literal notranslate"><span class="pre">MetadataClient.get_ssh_keys()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#linode_metadata.MetadataClient.get_user_data"><code class="docutils literal notranslate"><span class="pre">MetadataClient.get_user_data()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#linode_metadata.MetadataClient.refresh_token"><code class="docutils literal notranslate"><span class="pre">MetadataClient.refresh_token()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#linode_metadata.MetadataClient.set_token"><code class="docutils literal notranslate"><span class="pre">MetadataClient.set_token()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="objects/instance.html"><code class="docutils literal notranslate"><span class="pre">InstanceBackups</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="objects/instance.html#linode_metadata.objects.instance.InstanceResponse"><code class="docutils literal notranslate"><span class="pre">InstanceResponse</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="objects/instance.html#linode_metadata.objects.instance.InstanceSpecs"><code class="docutils literal notranslate"><span class="pre">InstanceSpecs</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="objects/networking.html"><code class="docutils literal notranslate"><span class="pre">IPv4Networking</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="objects/networking.html#linode_metadata.objects.networking.IPv6Networking"><code class="docutils literal notranslate"><span class="pre">IPv6Networking</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="objects/networking.html#linode_metadata.objects.networking.Interfaces"><code class="docutils literal notranslate"><span class="pre">Interfaces</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="objects/networking.html#linode_metadata.objects.networking.NetworkResponse"><code class="docutils literal notranslate"><span class="pre">NetworkResponse</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="objects/ssh_keys.html"><code class="docutils literal notranslate"><span class="pre">SSHKeysResponse</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="objects/ssh_keys.html#linode_metadata.objects.ssh_keys.SSHKeysUser"><code class="docutils literal notranslate"><span class="pre">SSHKeysUser</span></code></a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="../index.html" title="previous chapter">Welcome to py-metadata’s documentation!</a></li>
+      <li>Next: <a href="objects/instance.html" title="next chapter">&lt;no title&gt;</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, Linode.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../_sources/linode_metadata/metadata_client.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
