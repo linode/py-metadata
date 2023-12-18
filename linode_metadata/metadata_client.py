@@ -119,11 +119,6 @@ class MetadataClient:
         authenticated=True,
     ) -> Union[str, dict]:
         if authenticated:
-            if self._token is None:
-                raise RuntimeError(
-                    "No token provided. Please use MetadataClient.refresh_token() to create new token."
-                )
-
             # We should implicitly refresh the token if the user is enrolled in
             # token management and the token has expired.
             if self._managed_token and (
@@ -132,6 +127,11 @@ class MetadataClient:
             ):
                 self.refresh_token(
                     expiry_seconds=self._managed_token_expiry_seconds
+                )
+
+            if self._token is None:
+                raise RuntimeError(
+                    "No token provided. Please use MetadataClient.refresh_token() to create new token."
                 )
 
         method_map = {
