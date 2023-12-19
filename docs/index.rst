@@ -13,11 +13,12 @@ Installation
 
 To install through pypi::
 
-   pip install linode-metadata
+   pip install linode_metadata
 
 To install from source::
 
   git clone https://github.com/linode/py-metadata
+  cd py-metadata
   make install
 
 Table of Contents
@@ -30,6 +31,8 @@ Table of Contents
    linode_metadata/objects/instance
    linode_metadata/objects/networking
    linode_metadata/objects/ssh_keys
+   linode_metadata/objects/token
+   linode_metadata/objects/error
 
 Indices and tables
 ==================

@@ -53,6 +53,15 @@ class MetadataClient:
                            application.  Setting this is not necessary, but some
                            applications may desire this behavior.
         :type user_agent: str
+        :param token: An existing token to use with this client. This field cannot
+                      be specified when token management is enabled.
+        :type token: Optional[str]
+        :param managed_token: If true, the token for this client will be automatically
+                              generated and refreshed.
+        :type managed_token: bool
+        :type managed_token_expiry_seconds: The number of seconds until a managed token
+                                            should expire. (Default 3600)
+        :type managed_token_expiry_seconds: int
         """
 
         self.base_url = base_url
