@@ -12,7 +12,7 @@ This package allows Python projects to easily interact with the [Linode Metadata
 ### Installation
 
 ```bash
-pip install linode-metadata
+pip install linode_metadata
 ```
 
 ### Building from Source
