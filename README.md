@@ -12,7 +12,7 @@ This package allows Python projects to easily interact with the [Linode Metadata
 ### Installation
 
 ```bash
-pip install linode-metadata
+pip install linode_metadata
 ```
 
 ### Building from Source
@@ -23,7 +23,7 @@ To build and install this package:
 
 ### Basic Example
 
-The follow sample shows a simple Python project that initializes a new metadata client and retrieves various information
+The following sample shows a simple Python project that initializes a new metadata client and retrieves various information
 about the current Linode.
 
 
