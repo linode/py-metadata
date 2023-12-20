@@ -22,6 +22,7 @@ from linode_metadata.objects.token import MetadataToken
 class MetadataClient:
     """
     The main interface to the Linode Metadata Service.
+
     :param base_url: The base URL for Metadata API requests.  Generally, you shouldn't
                      change this.
     :type base_url: str
