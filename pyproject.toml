@@ -27,7 +27,7 @@ dependencies = ["requests"]
 dynamic = ["version"]
 
 [project.optional-dependencies]
-dev = ["pytest", "black", "isort", "autoflake", "Sphinx>=7.2.6"]
+dev = ["pytest", "black", "isort", "pylint", "autoflake", "Sphinx>=7.2.6"]
 
 [project.urls]
 homepage = "https://github.com/linode/py-metadata"
@@ -55,3 +55,11 @@ in-place = true
 recursive = true
 remove-all-unused-imports = true
 remove-duplicate-keys = true
+
+[tool.pylint]
+disable = [
+    "bare-except",
+    "cyclic-import",
+    "too-many-arguments",
+    "too-many-instance-attributes",
+]
