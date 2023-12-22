@@ -105,10 +105,10 @@ class MetadataClient:
         """
         try:
             requests.get(self.base_url, timeout=10)
-        except ConnectTimeout:
+        except ConnectTimeout as e:
             raise ConnectTimeout(
                 "Can't access Metadata service. Please verify that you are inside a Linode."
-            )
+            ) from e
 
     def _api_call(
         self,
@@ -132,7 +132,8 @@ class MetadataClient:
 
             if self._token is None:
                 raise RuntimeError(
-                    "No token provided. Please use MetadataClient.refresh_token() to create new token."
+                    "No token provided. Please use "
+                    "MetadataClient.refresh_token() to create new token."
                 )
 
         method_map = {
@@ -186,7 +187,7 @@ class MetadataClient:
     @staticmethod
     def _parse_response_body(response: Response, content_type: str) -> Any:
         handlers = {
-            "application/json": lambda: response.json(),
+            "application/json": response.json,
             "text/plain": lambda: response.content,
         }
 
