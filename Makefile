@@ -5,6 +5,8 @@ VERSION_FILE := ./linode_metadata/version.py
 # The path to the pubkey to configure the E2E testing instance with.
 TEST_PUBKEY ?= ~/.ssh/id_rsa.pub
 
+VERSION_MODULE_DOCSTRING ?= \"\"\"\nThe version of linode_metadata.\n\"\"\"\n\n
+
 .PHONY: clean
 clean:
 	rm -rf dist
@@ -20,7 +22,7 @@ install: build
 
 .PHONY: create-version
 create-version:
-	@echo "__version__ = \"${LINODE_METADATA_VERSION}\"" > $(VERSION_FILE)
+	@echo "${VERSION_MODULE_DOCSTRING}__version__ = \"${LINODE_METADATA_VERSION}\"" > $(VERSION_FILE)
 
 .PHONY: dev-install
 dev-install: create-version
