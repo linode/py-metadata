@@ -49,7 +49,7 @@ lint:
 	$(PYTHON) -m isort --check-only linode_metadata test
 	$(PYTHON) -m autoflake --check linode_metadata test
 	$(PYTHON) -m black --check --verbose linode_metadata test
-	$(PYTHON) -m pylint linode_metadata test
+	$(PYTHON) -m pylint linode_metadata
 
 .PHONY: black
 black:
