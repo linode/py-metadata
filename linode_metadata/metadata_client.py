@@ -133,7 +133,7 @@ class MetadataClient:
             if self._token is None:
                 raise RuntimeError(
                     "No token provided. Please use "
-                    "MetadataClient.refresh_token() to create new token."
+                    "MetadataClient.refresh_token() to create a new token."
                 )
 
         method_map = {
