@@ -1,11 +1,15 @@
-from typing import Dict, Any
-from linode_metadata.objects.instance import InstanceBackups, InstanceSpecs, InstanceResponse
+from typing import Any, Dict
 
+from linode_metadata.objects.instance import (
+    InstanceBackups,
+    InstanceResponse,
+    InstanceSpecs,
+)
 
 # Mocked JSON data for testing
 instance_backups_data: Dict[str, Any] = {
     "enabled": True,
-    "status": ["successful", "ready"]
+    "status": ["successful", "ready"],
 }
 
 instance_specs_data: Dict[str, Any] = {
@@ -13,7 +17,7 @@ instance_specs_data: Dict[str, Any] = {
     "disk": 81920,
     "memory": 4096,
     "transfer": 4000,
-    "gpus": 1
+    "gpus": 1,
 }
 
 instance_response_data: Dict[str, Any] = {
@@ -49,7 +53,10 @@ def test_instance_response():
     instance_response = InstanceResponse(instance_response_data)
 
     assert instance_response.id == 123
-    assert instance_response.host_uuid == "3a3ddd59d9a78bb8de041391075df44de62bfec8"
+    assert (
+        instance_response.host_uuid
+        == "3a3ddd59d9a78bb8de041391075df44de62bfec8"
+    )
     assert instance_response.label == "my-linode"
     assert instance_response.region == "us-east"
     assert instance_response.tags == "web-server"
