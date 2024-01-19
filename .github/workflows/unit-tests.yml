@@ -1,0 +1,28 @@
+name: Unit Tests
+
+on:
+  workflow_dispatch: null
+  push:
+  pull_request:
+
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v4
+
+      - name: update packages
+        run: sudo apt-get update -y
+
+      - name: setup python 3
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: install or update Python build system
+        run: python3 -m pip install -U wheel setuptools certifi pip pytest requests
+
+      - name: run unit tests
+        run: make unit-test
+

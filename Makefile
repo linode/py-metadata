@@ -65,3 +65,7 @@ autoflake:
 
 .PHONY: format
 format: black isort autoflake
+
+.PHONY: unit-test
+unittest:
+	$(PYTHON) -m pytest test/unit/
