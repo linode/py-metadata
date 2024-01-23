@@ -7,7 +7,7 @@ import datetime
 import json
 from datetime import datetime, timedelta
 from importlib.metadata import version
-from typing import Any, Callable, Union
+from typing import Any, Callable, Optional, Union
 
 import requests
 from requests import ConnectTimeout, Response
@@ -128,7 +128,7 @@ class MetadataClient:
                 "MetadataClient.refresh_token() to create new token."
             )
 
-    def get_api_method(self, method: str) -> Callable[..., Response]:
+    def get_api_method(self, method: str) -> Optional[Callable[..., Response]]:
         method_map = {
             "GET": self.session.get,
             "POST": self.session.post,
@@ -149,7 +149,7 @@ class MetadataClient:
         if authenticated:
             self.check_token()
 
-        method_func: Callable[..., Response] = self.get_api_method(method)
+        method_func = self.get_api_method(method)
         if method_func is None:
             raise ValueError(f"Invalid API request method: {method}")
 
