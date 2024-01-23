@@ -132,7 +132,9 @@ class MetadataClient:
                 "MetadataClient.refresh_token() to create new token."
             )
 
-    def get_callable_method(self, method: str) -> Optional[Callable[..., Response]]:
+    def get_callable_method(
+        self, method: str
+    ) -> Optional[Callable[..., Response]]:
         """
         Return a callable for making the API call.
         """
