@@ -113,6 +113,10 @@ class MetadataClient:
             ) from e
 
     def check_token(self):
+        """
+        Check whether the token is valid. Refresh the token if
+        it's expired and managed by this package.
+        """
         # We should implicitly refresh the token if the user is enrolled in
         # token management and the token has expired.
         if self._managed_token and (
@@ -128,7 +132,10 @@ class MetadataClient:
                 "MetadataClient.refresh_token() to create new token."
             )
 
-    def get_api_method(self, method: str) -> Optional[Callable[..., Response]]:
+    def get_callable_method(self, method: str) -> Optional[Callable[..., Response]]:
+        """
+        Return a callable for making the API call.
+        """
         method_map = {
             "GET": self.session.get,
             "POST": self.session.post,
@@ -149,7 +156,7 @@ class MetadataClient:
         if authenticated:
             self.check_token()
 
-        method_func = self.get_api_method(method)
+        method_func = self.get_callable_method(method)
         if method_func is None:
             raise ValueError(f"Invalid API request method: {method}")
 
