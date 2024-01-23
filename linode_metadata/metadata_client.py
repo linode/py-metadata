@@ -112,7 +112,7 @@ class MetadataClient:
                 "Can't access Metadata service. Please verify that you are inside a Linode."
             ) from e
 
-    def check_token(self):
+    def _validate_token(self):
         """
         Check whether the token is valid. Refresh the token if
         it's expired and managed by this package.
@@ -156,7 +156,7 @@ class MetadataClient:
         authenticated=True,
     ) -> Union[str, dict]:
         if authenticated:
-            self.check_token()
+            self._validate_token()
 
         method_func = self._get_http_method(method)
         if method_func is None:
