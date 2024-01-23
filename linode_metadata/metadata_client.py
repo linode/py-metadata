@@ -132,7 +132,7 @@ class MetadataClient:
                 "MetadataClient.refresh_token() to create new token."
             )
 
-    def get_callable_method(
+    def _get_http_method(
         self, method: str
     ) -> Optional[Callable[..., Response]]:
         """
@@ -158,7 +158,7 @@ class MetadataClient:
         if authenticated:
             self.check_token()
 
-        method_func = self.get_callable_method(method)
+        method_func = self._get_http_method(method)
         if method_func is None:
             raise ValueError(f"Invalid API request method: {method}")
 
