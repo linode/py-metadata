@@ -7,7 +7,7 @@ import datetime
 import json
 from datetime import datetime, timedelta
 from importlib.metadata import version
-from typing import Any, Union
+from typing import Any, Callable, Optional, Union
 
 import requests
 from requests import ConnectTimeout, Response
@@ -17,6 +17,8 @@ from linode_metadata.objects.error import ApiError
 from linode_metadata.objects.instance import InstanceResponse
 from linode_metadata.objects.ssh_keys import SSHKeysResponse
 from linode_metadata.objects.token import MetadataToken
+
+BASE_URL = "http://169.254.169.254/v1"
 
 
 class MetadataClient:
@@ -36,7 +38,7 @@ class MetadataClient:
 
     def __init__(
         self,
-        base_url="http://169.254.169.254/v1",
+        base_url=BASE_URL,
         user_agent=None,
         token=None,
         managed_token=True,
@@ -110,6 +112,40 @@ class MetadataClient:
                 "Can't access Metadata service. Please verify that you are inside a Linode."
             ) from e
 
+    def _validate_token(self):
+        """
+        Check whether the token is valid. Refresh the token if
+        it's expired and managed by this package.
+        """
+        # We should implicitly refresh the token if the user is enrolled in
+        # token management and the token has expired.
+        if self._managed_token and (
+            self._token is None or datetime.now() >= self._managed_token_expiry
+        ):
+            self.refresh_token(
+                expiry_seconds=self._managed_token_expiry_seconds
+            )
+
+        if self._token is None:
+            raise RuntimeError(
+                "No token provided. Please use "
+                "MetadataClient.refresh_token() to create new token."
+            )
+
+    def _get_http_method(
+        self, method: str
+    ) -> Optional[Callable[..., Response]]:
+        """
+        Return a callable for making the API call.
+        """
+        method_map = {
+            "GET": self.session.get,
+            "POST": self.session.post,
+            "PUT": self.session.put,
+            "DELETE": self.session.delete,
+        }
+        return method_map.get(method.upper())
+
     def _api_call(
         self,
         method: str,
@@ -120,32 +156,10 @@ class MetadataClient:
         authenticated=True,
     ) -> Union[str, dict]:
         if authenticated:
-            # We should implicitly refresh the token if the user is enrolled in
-            # token management and the token has expired.
-            if self._managed_token and (
-                self._token is None
-                or datetime.now() > self._managed_token_expiry
-            ):
-                self.refresh_token(
-                    expiry_seconds=self._managed_token_expiry_seconds
-                )
+            self._validate_token()
 
-            if self._token is None:
-                raise RuntimeError(
-                    "No token provided. Please use "
-                    "MetadataClient.refresh_token() to create a new token."
-                )
-
-        method_map = {
-            "GET": self.session.get,
-            "POST": self.session.post,
-            "PUT": self.session.put,
-            "DELETE": self.session.delete,
-        }
-
-        method = method.upper()
-
-        if method not in method_map:
+        method_func = self._get_http_method(method)
+        if method_func is None:
             raise ValueError(f"Invalid API request method: {method}")
 
         headers = {
@@ -163,7 +177,7 @@ class MetadataClient:
         url = f"{self.base_url}{endpoint}"
         body = body if body is None else json.dumps(body)
 
-        resp = method_map[method](url, headers=headers, data=body)
+        resp = method_func(url, headers=headers, data=body)
 
         if 399 < resp.status_code < 600:
             j = None

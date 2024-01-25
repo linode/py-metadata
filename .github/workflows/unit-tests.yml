@@ -21,7 +21,10 @@ jobs:
           python-version: '3.11'
 
       - name: install or update Python build system
-        run: python3 -m pip install -U wheel setuptools certifi pip pytest requests
+        run: python3 -m pip install -U wheel setuptools certifi pip
+
+      - name: install the package with dev tools
+        run: make dev-install
 
       - name: run unit tests
         run: make unit-test
