@@ -2,6 +2,7 @@
 This class provides functions for interacting with the Linode Metadata service.
 It includes methods for retrieving and updating metadata information.
 """
+
 import base64
 import datetime
 import json

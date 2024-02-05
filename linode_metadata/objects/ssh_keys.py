@@ -1,6 +1,7 @@
 """
 Data classes related to SSH Keys.
 """
+
 from dataclasses import dataclass
 from typing import Dict, List
 

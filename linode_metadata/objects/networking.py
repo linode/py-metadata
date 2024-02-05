@@ -1,6 +1,7 @@
 """
 Data classes related to Networking.
 """
+
 from dataclasses import dataclass, field
 from typing import List, Optional
 
