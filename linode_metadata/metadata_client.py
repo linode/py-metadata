@@ -9,16 +9,17 @@ from datetime import datetime, timedelta
 from importlib.metadata import version
 from typing import Any, Callable, Optional, Union
 
-import requests
-from requests import ConnectTimeout, Response
+import httpx
+from httpx import Response, TimeoutException
 
 from linode_metadata import NetworkResponse
-from linode_metadata.objects.error import ApiError
+from linode_metadata.objects.error import ApiError, ApiTimeoutError
 from linode_metadata.objects.instance import InstanceResponse
 from linode_metadata.objects.ssh_keys import SSHKeysResponse
 from linode_metadata.objects.token import MetadataToken
 
 BASE_URL = "http://169.254.169.254/v1"
+DEFAULT_API_TIMEOUT = 10
 
 
 class MetadataClient:
@@ -41,6 +42,7 @@ class MetadataClient:
         base_url=BASE_URL,
         user_agent=None,
         token=None,
+        timeout=DEFAULT_API_TIMEOUT,
         managed_token=True,
         managed_token_expiry_seconds=3600,
     ):
@@ -73,8 +75,9 @@ class MetadataClient:
             )
 
         self.base_url = base_url
-        self.session = requests.Session()
+        self.session = httpx.Client()
         self._append_user_agent = user_agent
+        self.timeout = timeout
 
         self._token = token
 
@@ -94,11 +97,9 @@ class MetadataClient:
         append_user_agent = (
             f"{self._append_user_agent} " if self._append_user_agent else ""
         )
-        default_user_agent = requests.utils.default_user_agent()
         return (
             f"{append_user_agent} "
-            f"linode-py-metadata/{version('linode_metadata')} "
-            f"{default_user_agent}"
+            f"linode-py-metadata/{version('linode_metadata')}"
         ).strip()
 
     def check_connection(self):
@@ -106,10 +107,11 @@ class MetadataClient:
         Checks for a connection to the Metadata Service, ensuring customer is inside a Linode.
         """
         try:
-            requests.get(self.base_url, timeout=10)
-        except ConnectTimeout as e:
-            raise ConnectTimeout(
-                "Can't access Metadata service. Please verify that you are inside a Linode."
+            httpx.get(self.base_url, timeout=self.timeout)
+        except TimeoutException as e:
+            raise ApiTimeoutError(
+                "Can't access Metadata service. "
+                "Please verify that you are inside a Linode."
             ) from e
 
     def _validate_token(self):
@@ -175,9 +177,17 @@ class MetadataClient:
             headers.update(additional_headers)
 
         url = f"{self.base_url}{endpoint}"
-        body = body if body is None else json.dumps(body)
 
-        resp = method_func(url, headers=headers, data=body)
+        request_params = {
+            "url": url,
+            "headers": headers,
+            "timeout": self.timeout,
+        }
+
+        if method.lower() in ("put", "post") and body:
+            request_params["data"] = json.dumps(body)
+
+        resp = method_func(**request_params)
 
         if 399 < resp.status_code < 600:
             j = None
