@@ -2,6 +2,7 @@
 This class is the base class for response classes.
 It includes basic methods for handling JSON responses.
 """
+
 import dataclasses
 from dataclasses import dataclass
 from typing import Any, Dict

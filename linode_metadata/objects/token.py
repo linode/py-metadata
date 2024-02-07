@@ -1,6 +1,7 @@
 """
 Data classes related to Metadata Service token.
 """
+
 from dataclasses import dataclass
 from datetime import datetime
 

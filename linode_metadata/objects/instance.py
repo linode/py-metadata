@@ -1,6 +1,7 @@
 """
 Data classes related to Linode instances.
 """
+
 from dataclasses import dataclass
 from typing import List, Optional
 
