@@ -25,6 +25,11 @@ DEFAULT_API_TIMEOUT = 10
 
 
 class BaseMetadataClient:
+    """
+    The base client of Linode Metadata Service that holds shared components
+    between MetadataClient and MetadataAsyncClient.
+    """
+
     def __init__(
         self,
         base_url=BASE_URL,
@@ -108,7 +113,7 @@ class BaseMetadataClient:
         }
         return method_map.get(method.upper())
 
-    def prepare_headers(
+    def _prepare_headers(
         self, content_type: str, additional_headers: dict, authenticated: bool
     ):
         headers = {
@@ -125,10 +130,10 @@ class BaseMetadataClient:
 
         return headers
 
-    def prepare_url(self, endpoint: str):
+    def _prepare_url(self, endpoint: str):
         return f"{self.base_url}{endpoint}"
 
-    def get_api_call_params(
+    def _get_api_call_params(
         self, url: str, headers: dict, method: str, body: dict
     ):
         request_params = {
@@ -142,7 +147,7 @@ class BaseMetadataClient:
 
         return request_params
 
-    def check_response(self, response: Response):
+    def _check_response(self, response: Response):
         if 399 < response.status_code < 600:
             j = None
             error_msg = f"{response.status_code}: "
@@ -186,17 +191,7 @@ class BaseMetadataClient:
 
 class MetadataClient(BaseMetadataClient):
     """
-    The main interface to the Linode Metadata Service.
-
-    :param base_url: The base URL for Metadata API requests.  Generally, you shouldn't
-                     change this.
-    :type base_url: str
-    :param user_agent: What to append to the User Agent of all requests made
-                       by this client.  Setting this allows Linode's internal
-                       monitoring applications to track the usage of your
-                       application.  Setting this is not necessary, but some
-                       applications may desire this behavior.
-    :type user_agent: str
+    The main sync client of the Linode Metadata Service.
     """
 
     def __init__(
@@ -289,18 +284,18 @@ class MetadataClient(BaseMetadataClient):
         if method_func is None:
             raise ValueError(f"Invalid API request method: {method}")
 
-        headers = self.prepare_headers(
+        headers = self._prepare_headers(
             content_type,
             additional_headers,
             authenticated,
         )
 
-        url = self.prepare_url(endpoint)
-        request_params = self.get_api_call_params(url, headers, method, body)
+        url = self._prepare_url(endpoint)
+        request_params = self._get_api_call_params(url, headers, method, body)
 
         response: Response = method_func(**request_params)
 
-        self.check_response(response)
+        self._check_response(response)
 
         return self._parse_response_body(response, content_type)
 
