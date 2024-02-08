@@ -24,7 +24,7 @@ BASE_URL = "http://169.254.169.254/v1"
 DEFAULT_API_TIMEOUT = 10
 
 
-class BaseClient:
+class BaseMetadataClient:
     def __init__(
         self,
         base_url=BASE_URL,
@@ -184,7 +184,7 @@ class BaseClient:
         ).strip()
 
 
-class MetadataClient(BaseClient):
+class MetadataClient(BaseMetadataClient):
     """
     The main interface to the Linode Metadata Service.
 
