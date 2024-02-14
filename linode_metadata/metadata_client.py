@@ -2,6 +2,7 @@ import base64
 import datetime
 import json
 from typing import Any, Union
+import sys
 
 import pkg_resources
 import requests
@@ -21,7 +22,7 @@ package_version = pkg_resources.require("linode_api4")[0].version
 
 
 class MetadataClient:
-    def __init__(self, base_url="http://169.254.169.254/v1", user_agent=None, token=None, init_token=True):
+    def __init__(self, base_url="http://169.254.169.254/v1", user_agent=None, token=None, init_token=True, debug=False, debug_file=sys.stderr):
         """
         The main interface to the Linode Metadata Service.
         :param base_url: The base URL for Metadata API requests.  Generally, you shouldn't
@@ -39,6 +40,8 @@ class MetadataClient:
         self.session = requests.Session()
         self._append_user_agent = user_agent
         self._token = token
+        self.debug = debug
+        self.debug_file = debug_file
 
         self.check_connection()
 
@@ -91,6 +94,9 @@ class MetadataClient:
         body = body if body is None else json.dumps(body)
 
         resp = method_map[method](url, headers=headers, data=body)
+
+        if self.debug:
+            self._print_response_debug_info(resp)
 
         if 399 < resp.status_code < 600:
             j = None
@@ -177,3 +183,18 @@ class MetadataClient:
             "/ssh-keys"
         )
         return SSHKeysResponse(json_data=resp)
+
+    def _print_response_debug_info(self, response):
+        """
+        Prints debug info for a response from requests
+        """
+        # these come back as ints, convert to HTTP version
+        http_version = response.raw.version / 10
+
+        print(
+            f"< HTTP/{http_version:.1f} {response.status_code} {response.reason}",
+            file=self.debug_file,
+        )
+        for k, v in response.headers.items():
+            print(f"< {k}: {v}", file=self.debug_file)
+        print("< ", file=self.debug_file)
