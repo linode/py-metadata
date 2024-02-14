@@ -46,6 +46,8 @@ class MetadataClient:
         timeout=DEFAULT_API_TIMEOUT,
         managed_token=True,
         managed_token_expiry_seconds=3600,
+        debug=False,
+        debug_file=None,
     ):
         """
         The main interface to the Linode Metadata Service.
@@ -68,6 +70,11 @@ class MetadataClient:
         :type managed_token_expiry_seconds: The number of seconds until a managed token
                                             should expire. (Default 3600)
         :type managed_token_expiry_seconds: int
+        :param debug: Enables debug mode if set to True.
+        :type debug: bool
+        :param debug_file: The file location to output the debug logs.
+                            Default to sys.stderr if not specified.
+        :type debug_file: str
         """
 
         if token is not None and managed_token:
@@ -92,6 +99,9 @@ class MetadataClient:
             self.refresh_token(
                 expiry_seconds=self._managed_token_expiry_seconds,
             )
+
+        self.debug = debug
+        self.debug_file = sys.stderr if debug_file is None else open(debug_file, "w")
 
     @property
     def _user_agent(self):
@@ -188,7 +198,13 @@ class MetadataClient:
         if method.lower() in ("put", "post") and body:
             request_params["data"] = json.dumps(body)
 
+        if self.debug:
+            self._print_request_debug_info(request_params)
+
         resp = method_func(**request_params)
+
+        if self.debug:
+            self._print_response_debug_info(resp)
 
         if 399 < resp.status_code < 600:
             j = None
@@ -302,3 +318,31 @@ class MetadataClient:
         """
         resp = self._api_call("GET", "/ssh-keys")
         return SSHKeysResponse(json_data=resp)
+
+    def _print_request_debug_info(self, request_params):
+        """
+        Prints debug info for an HTTP request
+        """
+        for k,v in request_params.items():
+            if k == "headers":
+                for hk, hv in v.items():
+                    print(f"> {hk}: {hv}", file=self.debug_file)
+            else:
+                print(f"> {k}: {v}", file=self.debug_file)
+
+        print("> ", file=self.debug_file)
+
+    def _print_response_debug_info(self, response):
+        """
+        Prints debug info for a response from requests
+        """
+        # these come back as ints, convert to HTTP version
+        http_version = response.raw.version / 10
+
+        print(
+            f"< HTTP/{http_version:.1f} {response.status_code} {response.reason}",
+            file=self.debug_file,
+        )
+        for k, v in response.headers.items():
+            print(f"< {k}: {v}", file=self.debug_file)
+        print("< ", file=self.debug_file)
