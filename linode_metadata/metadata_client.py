@@ -9,6 +9,7 @@ import json
 from datetime import datetime, timedelta
 from importlib.metadata import version
 from typing import Any, Callable, Optional, Union
+import sys
 
 import httpx
 from httpx import Response, TimeoutException
