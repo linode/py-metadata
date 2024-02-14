@@ -6,10 +6,10 @@ It includes methods for retrieving and updating metadata information.
 import base64
 import datetime
 import json
+import sys
 from datetime import datetime, timedelta
 from importlib.metadata import version
 from typing import Any, Callable, Optional, Union
-import sys
 
 import httpx
 from httpx import Response, TimeoutException
@@ -101,8 +101,10 @@ class MetadataClient:
                 expiry_seconds=self._managed_token_expiry_seconds,
             )
 
-        self.debug = debug
-        self.debug_file = sys.stderr if debug_file is None else open(debug_file, "w")
+        self._debug = debug
+        self._debug_file = (
+            sys.stderr if debug_file is None else open(debug_file, "w")
+        )
 
     @property
     def _user_agent(self):
@@ -199,12 +201,12 @@ class MetadataClient:
         if method.lower() in ("put", "post") and body:
             request_params["data"] = json.dumps(body)
 
-        if self.debug:
+        if self._debug:
             self._print_request_debug_info(request_params)
 
         resp = method_func(**request_params)
 
-        if self.debug:
+        if self._debug:
             self._print_response_debug_info(resp)
 
         if 399 < resp.status_code < 600:
@@ -324,26 +326,23 @@ class MetadataClient:
         """
         Prints debug info for an HTTP request
         """
-        for k,v in request_params.items():
+        for k, v in request_params.items():
             if k == "headers":
                 for hk, hv in v.items():
-                    print(f"> {hk}: {hv}", file=self.debug_file)
+                    print(f"> {hk}: {hv}", file=self._debug_file)
             else:
-                print(f"> {k}: {v}", file=self.debug_file)
+                print(f"> {k}: {v}", file=self._debug_file)
 
-        print("> ", file=self.debug_file)
+        print("> ", file=self._debug_file)
 
     def _print_response_debug_info(self, response):
         """
         Prints debug info for a response from requests
         """
-        # these come back as ints, convert to HTTP version
-        http_version = response.raw.version / 10
-
         print(
-            f"< HTTP/{http_version:.1f} {response.status_code} {response.reason}",
-            file=self.debug_file,
+            f"< HTTP/{response.http_version:.1f} {response.status_code} {response.reason}",
+            file=self._debug_file,
         )
         for k, v in response.headers.items():
-            print(f"< {k}: {v}", file=self.debug_file)
-        print("< ", file=self.debug_file)
+            print(f"< {k}: {v}", file=self._debug_file)
+        print("< ", file=self._debug_file)
