@@ -93,6 +93,9 @@ class MetadataClient:
         url = f"{self.base_url}{endpoint}"
         body = body if body is None else json.dumps(body)
 
+        if self.debug:
+            self._print_request_debug_info(method, url, headers, body)
+
         resp = method_map[method](url, headers=headers, data=body)
 
         if self.debug:
@@ -183,6 +186,17 @@ class MetadataClient:
             "/ssh-keys"
         )
         return SSHKeysResponse(json_data=resp)
+
+    def _print_request_debug_info(self, method, url, headers, body):
+        """
+        Prints debug info for an HTTP request
+        """
+        print(f"> {method} {url}", file=self.debug_file)
+        for k, v in headers.items():
+            print(f"> {k}: {v}", file=self.debug_file)
+        print("> Body:", file=self.debug_file)
+        print(">  ", body or "", file=self.debug_file)
+        print("> ", file=self.debug_file)
 
     def _print_response_debug_info(self, response):
         """
