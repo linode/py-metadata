@@ -87,6 +87,10 @@ class MetadataClient:
         self.session = httpx.Client()
         self._append_user_agent = user_agent
         self.timeout = timeout
+        self._debug = debug
+        self._debug_file = (
+            sys.stderr if debug_file is None else open(debug_file, "w")
+        )
 
         self._token = token
 
@@ -100,11 +104,6 @@ class MetadataClient:
             self.refresh_token(
                 expiry_seconds=self._managed_token_expiry_seconds,
             )
-
-        self._debug = debug
-        self._debug_file = (
-            sys.stderr if debug_file is None else open(debug_file, "w")
-        )
 
     @property
     def _user_agent(self):
@@ -340,7 +339,7 @@ class MetadataClient:
         Prints debug info for a response from requests
         """
         print(
-            f"< HTTP/{response.http_version:.1f} {response.status_code} {response.reason}",
+            f"< {response.http_version} {response.status_code} {response.reason_phrase}",
             file=self._debug_file,
         )
         for k, v in response.headers.items():
