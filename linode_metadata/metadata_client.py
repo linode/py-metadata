@@ -22,7 +22,7 @@ package_version = pkg_resources.require("linode_api4")[0].version
 
 
 class MetadataClient:
-    def __init__(self, base_url="http://169.254.169.254/v1", user_agent=None, token=None, init_token=True, debug=False, debug_file=sys.stderr):
+    def __init__(self, base_url="http://169.254.169.254/v1", user_agent=None, token=None, init_token=True, debug=False, debug_file=None):
         """
         The main interface to the Linode Metadata Service.
         :param base_url: The base URL for Metadata API requests.  Generally, you shouldn't
@@ -36,10 +36,10 @@ class MetadataClient:
                            applications may desire this behavior.
         :type user_agent: str
 
-        :param debug: If set to True, it enables debug mode.
+        :param debug: Enables debug mode if set to True.
         :type debug: bool
 
-        :param debug_file: Configure the output location for the debug logs. Default to sys.stderr.
+        :param debug_file: The file location to output the debug logs. Default to sys.stderr if not specified.
         :type debug_file: str
         """
 
@@ -48,7 +48,7 @@ class MetadataClient:
         self._append_user_agent = user_agent
         self._token = token
         self.debug = debug
-        self.debug_file = debug_file
+        self.debug_file = sys.stderr if debug_file is None else open(debug_file, "w")
 
         self.check_connection()
 
