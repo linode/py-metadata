@@ -1,0 +1,156 @@
+---
+- name: Deploy Test Linode
+  hosts: localhost
+  vars:
+    ssh_pubkey_path: ~/.ssh/id_rsa.pub
+    label_prefix: py-metadata-test
+    type: g6-nanode-1
+    region: us-ord
+    temp_token_name: py-metadata-dev
+    token_duration_seconds: 3600
+  tasks:
+    - name: Load the cached runner ID
+      stat:
+        path: '{{ playbook_dir }}/.e2e-runner-id'
+      register: stat_cached_id
+
+    - name: Generate a runner ID if it does not exist
+      block:
+        - copy:
+            dest: '{{ playbook_dir }}/.e2e-runner-id'
+            content: '{{ 999999 | random() }}'
+      when: not stat_cached_id.stat.exists
+
+    - set_fact:
+        run_id: '{{ ansible_date_time.epoch }}'
+        label_prefix: "{{ label_prefix }}"
+        temp_token_name: '{{ temp_token_name }}'
+        ssh_pubkey: '{{ lookup("file", ssh_pubkey_path) }}'
+        runner_id: '{{ lookup("file", playbook_dir ~ "/.e2e-runner-id") }}'
+
+    - name: Create a temporary token for the plugin to consume
+      no_log: true
+      linode.cloud.token:
+        label: "{{ temp_token_name }}-{{ run_id }}"
+        scopes: "events:read_write linodes:read_write"
+
+        # This token should expire in an hour by default
+        expiry: "{{ '%Y-%m-%dT%H:%M:%S' | strftime((ansible_date_time.epoch | int + token_duration_seconds), utc=True) }}"
+
+        state: present
+      register: temp_token
+
+    - name: Ensure the test instance is created
+      no_log: true
+      linode.cloud.instance:
+        label: "{{ label_prefix }}-{{ runner_id }}"
+        type: "{{ type }}"
+        region: "{{ region }}"
+        image: linode/ubuntu23.10
+        booted: true
+        metadata:
+          user_data: '{{ lookup("template", playbook_dir ~ "/harden.yaml.j2") }}'
+        state: present
+      register: create_inst
+
+    - name: Wait for SSH to be ready
+      wait_for: host="{{ create_inst.instance.ipv4[0] }}" port=22 delay=1  timeout=300
+
+    - name: Append host to the in-memory inventory
+      no_log: true
+      add_host:
+        hostname: "test-runner"
+        ansible_host: "{{ create_inst.instance.ipv4[0] }}"
+        groups: test_runner
+        ansible_user: linodedx
+        ansible_ssh_retries: 50
+        temp_token: "{{ temp_token.token.token }}"
+        run_id: "{{ run_id }}"
+
+- name: Configure the test instance
+  hosts: test_runner
+  remote_user: linodedx
+  gather_facts: no
+  vars:
+    debug: 0
+    venv_python: "~/py-metadata-{{ run_id }}/venv/bin/python"
+  pre_tasks:
+    # Wait for SSH to be available under the newly created user
+    - setup:
+      register: setup_status
+      until: setup_status is success
+      delay: 3
+      retries: 30
+  tasks:
+    - block:
+        - name: Wait for cloud-init to finish initialization
+          command: cloud-init status --format json
+          retries: 30
+          delay: 5
+          register: cloud_init_status
+          until: cloud_init_status.rc == 0 and (cloud_init_status.stdout | from_json)["status"] == "done"
+
+        - name: Update repositories and install necessary packages
+          become: yes
+          apt:
+            name: make,python3-pip,python3-venv
+            update_cache: true
+
+        - name: Copy the local project to the remote
+          synchronize:
+            src: ../../
+            dest: "~/py-metadata-{{ run_id }}"
+            rsync_opts:
+              - "--exclude=.git"
+              - "--exclude=venv"
+
+        - name: Install project directory
+          args:
+            executable: /bin/bash
+          shell: |
+            cd ~/py-metadata-{{ run_id }} && \
+            python3 -m venv venv && \
+            PYTHON={{ venv_python }} make dev-install
+
+        - name: Write the configuration to an env file
+          copy:
+            dest: "~/py-metadata-{{ run_id }}/.test.env"
+            content: |
+              export LINODE_DEBUG={{ debug }}
+              export LINODE_TOKEN={{ temp_token }}
+          no_log: true
+
+        - name: Run the E2E test suite
+          args:
+            executable: /bin/bash
+          shell: |
+            cd ~/py-metadata-{{ run_id }} && \
+            source .test.env && \
+            PYTHON={{ venv_python }} make e2e-local
+          register: run_tests
+
+      rescue:
+        - debug:
+            msg: Failed to run E2E tests, rescuing for cleanup...
+
+- name: Clean up
+  hosts: localhost
+  gather_facts: no
+
+  tasks:
+    - name: Remove the temp token
+      no_log: true
+      linode.cloud.token:
+        label: "{{ temp_token_name }}-{{ run_id }}"
+        state: absent
+
+    - name: Cleanup Linode instance
+      when: cleanup_linode|bool
+      linode.cloud.instance:
+        label: "{{ label_prefix }}-{{ runner_id }}"
+        state: absent
+
+    - name: Exit if tests failed
+      assert:
+        that:
+          - "'ansible_failed_result' not in hostvars['test-runner']"
