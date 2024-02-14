@@ -28,12 +28,19 @@ class MetadataClient:
         :param base_url: The base URL for Metadata API requests.  Generally, you shouldn't
                          change this.
         :type base_url: str
+
         :param user_agent: What to append to the User Agent of all requests made
                            by this client.  Setting this allows Linode's internal
                            monitoring applications to track the usage of your
                            application.  Setting this is not necessary, but some
                            applications may desire this behavior.
         :type user_agent: str
+
+        :param debug: If set to True, it enables debug mode.
+        :type debug: bool
+
+        :param debug_file: Configure the output location for the debug logs. Default to sys.stderr.
+        :type debug_file: str
         """
 
         self.base_url = base_url
