@@ -114,13 +114,19 @@ class BaseMetadataClient:
         return method_map.get(method.upper())
 
     def _prepare_headers(
-        self, content_type: str, additional_headers: dict, authenticated: bool
+        self,
+        method: str,
+        content_type: str,
+        additional_headers: dict,
+        authenticated: bool,
     ):
         headers = {
-            "Content-Type": content_type,
             "Accept": content_type,
             "User-Agent": self._user_agent,
         }
+
+        if method.lower() in ("put", "post"):
+            headers["Content-Type"] = content_type
 
         if authenticated:
             headers["Metadata-Token"] = self._token
@@ -285,6 +291,7 @@ class MetadataClient(BaseMetadataClient):
             raise ValueError(f"Invalid API request method: {method}")
 
         headers = self._prepare_headers(
+            method,
             content_type,
             additional_headers,
             authenticated,
