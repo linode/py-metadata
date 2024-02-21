@@ -22,7 +22,7 @@ install: build
 
 .PHONY: create-version
 create-version:
-	@echo "${VERSION_MODULE_DOCSTRING}__version__ = \"${LINODE_METADATA_VERSION}\"" > $(VERSION_FILE)
+	@printf "${VERSION_MODULE_DOCSTRING}__version__ = \"${LINODE_METADATA_VERSION}\"" > $(VERSION_FILE)
 
 .PHONY: dev-install
 dev-install: create-version
