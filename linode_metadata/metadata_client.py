@@ -6,6 +6,7 @@ It includes methods for retrieving and updating metadata information.
 import base64
 import datetime
 import json
+import os
 import sys
 from collections.abc import Awaitable
 from datetime import datetime, timedelta
@@ -318,8 +319,14 @@ class MetadataClient(BaseMetadataClient):
             if self._debug_file is None:
                 self._print_request_debug_info(request_params, sys.stderr)
             else:
-                with open(self._debug_file, "w", encoding="UTF-8") as file:
-                    self._print_request_debug_info(request_params, file)
+                if os.path.exists(self._debug_file):
+                    with open(self._debug_file, "a", encoding="UTF-8") as file:
+                        self._print_request_debug_info(request_params, file)
+                else:
+                    print(
+                        "No debug file exists to write. "
+                        + "Please check the file path or use default output."
+                    )
 
         response: Response = method_func(**request_params)
 
@@ -327,8 +334,14 @@ class MetadataClient(BaseMetadataClient):
             if self._debug_file is None:
                 self._print_response_debug_info(response, sys.stderr)
             else:
-                with open(self._debug_file, "w", encoding="UTF-8") as file:
-                    self._print_response_debug_info(response, file)
+                if os.path.exists(self._debug_file):
+                    with open(self._debug_file, "a", encoding="UTF-8") as file:
+                        self._print_response_debug_info(response, file)
+                else:
+                    print(
+                        "No debug file exists to write. "
+                        + "Please check the file path or use default output."
+                    )
 
         self._check_response(response)
 
