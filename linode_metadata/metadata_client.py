@@ -205,6 +205,32 @@ class BaseMetadataClient:
             f"linode-py-metadata/{version('linode_metadata')}"
         ).strip()
 
+    def _print_request_debug_info(self, request_params, file):
+        """
+        Prints debug info for an HTTP request
+        """
+        for k, v in request_params.items():
+            if k == "headers":
+                for hk, hv in v.items():
+                    print(f"> {hk}: {hv}", file=file)
+            else:
+                print(f"> {k}: {v}", file=file)
+
+        print("> ", file=file)
+
+    def _print_response_debug_info(self, response, file):
+        """
+        Prints debug info for a response from requests
+        """
+        print(
+            f"< {response.http_version} {response.status_code} {response.reason_phrase}",
+            file=file,
+        )
+        for k, v in response.headers.items():
+            print(f"< {k}: {v}", file=file)
+
+        print("< ", file=file)
+
 
 class MetadataClient(BaseMetadataClient):
     """
@@ -323,9 +349,9 @@ class MetadataClient(BaseMetadataClient):
                     with open(self._debug_file, "a", encoding="UTF-8") as file:
                         self._print_request_debug_info(request_params, file)
                 else:
-                    print(
+                    raise RuntimeError(
                         "No debug file exists to write. "
-                        + "Please check the file path or use default output."
+                        "Please check the file path or use default output."
                     )
 
         response: Response = method_func(**request_params)
@@ -338,9 +364,9 @@ class MetadataClient(BaseMetadataClient):
                     with open(self._debug_file, "a", encoding="UTF-8") as file:
                         self._print_response_debug_info(response, file)
                 else:
-                    print(
+                    raise RuntimeError(
                         "No debug file exists to write. "
-                        + "Please check the file path or use default output."
+                        "Please check the file path or use default output."
                     )
 
         self._check_response(response)
@@ -413,29 +439,3 @@ class MetadataClient(BaseMetadataClient):
         """
         response = self._api_call("GET", "/ssh-keys")
         return SSHKeysResponse(json_data=response)
-
-    def _print_request_debug_info(self, request_params, file):
-        """
-        Prints debug info for an HTTP request
-        """
-        for k, v in request_params.items():
-            if k == "headers":
-                for hk, hv in v.items():
-                    print(f"> {hk}: {hv}", file=file)
-            else:
-                print(f"> {k}: {v}", file=file)
-
-        print("> ", file=file)
-
-    def _print_response_debug_info(self, response, file):
-        """
-        Prints debug info for a response from requests
-        """
-        print(
-            f"< {response.http_version} {response.status_code} {response.reason_phrase}",
-            file=file,
-        )
-        for k, v in response.headers.items():
-            print(f"< {k}: {v}", file=file)
-
-        print("< ", file=file)
