@@ -79,10 +79,7 @@ class BaseMetadataClient:
         self._append_user_agent = user_agent
         self.timeout = timeout
         self._debug = debug
-        if debug_file is not None:
-            logging.basicConfig(filename=debug_file, level=logging.DEBUG)
-        else:
-            logging.basicConfig(level=logging.DEBUG)
+        logging.basicConfig(filename=debug_file, level=logging.DEBUG)
 
         self._token = token
         self.client = None
