@@ -21,8 +21,7 @@ jobs:
         with:
           ref: ${{ inputs.commit_sha }}
           fetch-depth: 0
-          submodules: 'recursive
-          
+          submodules: 'recursive'
 
       - name: checkout repo
         uses: actions/checkout@v4
