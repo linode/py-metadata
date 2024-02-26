@@ -6,8 +6,7 @@ It includes methods for retrieving and updating metadata information.
 import base64
 import datetime
 import json
-import os
-import sys
+import logging
 from collections.abc import Awaitable
 from datetime import datetime, timedelta
 from importlib.metadata import version
@@ -80,7 +79,8 @@ class BaseMetadataClient:
         self._append_user_agent = user_agent
         self.timeout = timeout
         self._debug = debug
-        self._debug_file = debug_file
+        if debug_file is not None:
+            logging.basicConfig(filename=debug_file, level=logging.DEBUG)
 
         self._token = token
         self.client = None
@@ -205,31 +205,33 @@ class BaseMetadataClient:
             f"linode-py-metadata/{version('linode_metadata')}"
         ).strip()
 
-    def _print_request_debug_info(self, request_params, file):
+    def _print_request_debug_info(self, request_params):
         """
         Prints debug info for an HTTP request
         """
         for k, v in request_params.items():
             if k == "headers":
                 for hk, hv in v.items():
-                    print(f"> {hk}: {hv}", file=file)
+                    logging.debug("> %s: %s", hk, hv)
             else:
-                print(f"> {k}: {v}", file=file)
+                logging.debug("> %s: %s", k, v)
 
-        print("> ", file=file)
+        logging.debug("> ")
 
-    def _print_response_debug_info(self, response, file):
+    def _print_response_debug_info(self, response):
         """
         Prints debug info for a response from requests
         """
-        print(
-            f"< {response.http_version} {response.status_code} {response.reason_phrase}",
-            file=file,
+        logging.debug(
+            "< %s %s %s",
+            response.http_version,
+            response.status_code,
+            response.reason_phrase,
         )
         for k, v in response.headers.items():
-            print(f"< {k}: {v}", file=file)
+            logging.debug("< %s: %s", k, v)
 
-        print("< ", file=file)
+        logging.debug("< ")
 
 
 class MetadataClient(BaseMetadataClient):
@@ -342,32 +344,34 @@ class MetadataClient(BaseMetadataClient):
         request_params = self._get_api_call_params(url, headers, method, body)
 
         if self._debug:
-            if self._debug_file is None:
-                self._print_request_debug_info(request_params, sys.stderr)
-            else:
-                if os.path.exists(self._debug_file):
-                    with open(self._debug_file, "a", encoding="UTF-8") as file:
-                        self._print_request_debug_info(request_params, file)
-                else:
-                    raise RuntimeError(
-                        "No debug file exists to write. "
-                        "Please check the file path or use default output."
-                    )
+            self._print_request_debug_info(request_params)
+            # if self._debug_file is None:
+            #     self._print_request_debug_info(request_params, sys.stderr)
+            # else:
+            #     if os.path.exists(self._debug_file):
+            #         with open(self._debug_file, "a", encoding="UTF-8") as file:
+            #             self._print_request_debug_info(request_params, file)
+            #     else:
+            #         raise RuntimeError(
+            #             "No debug file exists to write. "
+            #             "Please check the file path or use default output."
+            #         )
 
         response: Response = method_func(**request_params)
 
         if self._debug:
-            if self._debug_file is None:
-                self._print_response_debug_info(response, sys.stderr)
-            else:
-                if os.path.exists(self._debug_file):
-                    with open(self._debug_file, "a", encoding="UTF-8") as file:
-                        self._print_response_debug_info(response, file)
-                else:
-                    raise RuntimeError(
-                        "No debug file exists to write. "
-                        "Please check the file path or use default output."
-                    )
+            self._print_response_debug_info(response)
+            # if self._debug_file is None:
+            #     self._print_response_debug_info(response, sys.stderr)
+            # else:
+            #     if os.path.exists(self._debug_file):
+            #         with open(self._debug_file, "a", encoding="UTF-8") as file:
+            #             self._print_response_debug_info(response, file)
+            #     else:
+            #         raise RuntimeError(
+            #             "No debug file exists to write. "
+            #             "Please check the file path or use default output."
+            #         )
 
         self._check_response(response)
 
