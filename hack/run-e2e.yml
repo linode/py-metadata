@@ -128,6 +128,12 @@
             source .test.env && \
             PYTHON={{ venv_python }} make e2e-local
           register: run_tests
+        - name: Copy report.xml to local folder directory
+          fetch:
+            src: "~/py-metadata-{{ run_id }}/report.xml"
+            dest: "./"
+            flat: yes
+            remote_src: yes
 
       rescue:
         - debug:

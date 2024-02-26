@@ -42,7 +42,7 @@ e2e:
 # NOTE: E2E tests must be run from within a Linode.
 .PHONY: e2e-local
 e2e-local:
-	$(PYTHON) -m pytest test/integration/
+	$(PYTHON) -m pytest test/integration/ --junitxml="report.xml"
 
 .PHONY: lint
 lint:
