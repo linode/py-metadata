@@ -267,9 +267,14 @@ class MetadataClient(BaseMetadataClient):
         :param managed_token: If true, the token for this client will be automatically
                               generated and refreshed.
         :type managed_token: bool
-        :type managed_token_expiry_seconds: The number of seconds until a managed token
+        :param managed_token_expiry_seconds: The number of seconds until a managed token
                                             should expire. (Default 3600)
         :type managed_token_expiry_seconds: int
+        :param debug: Enables debug mode if set to True.
+        :type debug: bool
+        :param debug_file: The file location to output the debug logs.
+                            Default to sys.stderr if not specified.
+        :type debug_file: str
         """
 
         super().__init__(
