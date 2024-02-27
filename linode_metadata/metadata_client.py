@@ -80,7 +80,7 @@ class BaseMetadataClient:
         self.timeout = timeout
         self._debug = debug
         if debug:
-            self._logger = logging.getLogger("MDS debug")
+            self._logger = logging.getLogger("linode_metadata")
             self._logger.setLevel(logging.DEBUG)
             handler = (
                 logging.FileHandler(debug_file)
