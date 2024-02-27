@@ -80,7 +80,19 @@ class BaseMetadataClient:
         self.timeout = timeout
         self._debug = debug
         if debug:
-            logging.basicConfig(filename=debug_file, level=logging.DEBUG)
+            self._logger = logging.getLogger("MDS debug")
+            self._logger.setLevel(logging.DEBUG)
+            handler = (
+                logging.FileHandler(debug_file)
+                if debug_file
+                else logging.StreamHandler()
+            )
+            handler.setLevel(logging.DEBUG)
+            formatter = logging.Formatter(
+                "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+            )
+            handler.setFormatter(formatter)
+            self._logger.addHandler(handler)
 
         self._token = token
         self.client = None
@@ -205,33 +217,33 @@ class BaseMetadataClient:
             f"linode-py-metadata/{version('linode_metadata')}"
         ).strip()
 
-    def _print_request_debug_info(self, request_params):
+    def _log_request_debug_info(self, request_params):
         """
-        Prints debug info for an HTTP request
+        Logging debug info for an HTTP request
         """
         for k, v in request_params.items():
             if k == "headers":
                 for hk, hv in v.items():
-                    logging.debug("> %s: %s", hk, hv)
+                    self._logger.debug("> %s: %s", hk, hv)
             else:
-                logging.debug("> %s: %s", k, v)
+                self._logger.debug("> %s: %s", k, v)
 
-        logging.debug("> ")
+        self._logger.debug("> ")
 
-    def _print_response_debug_info(self, response):
+    def _log_response_debug_info(self, response):
         """
-        Prints debug info for a response from requests
+        Logging debug info for a response from requests
         """
-        logging.debug(
+        self._logger.debug(
             "< %s %s %s",
             response.http_version,
             response.status_code,
             response.reason_phrase,
         )
         for k, v in response.headers.items():
-            logging.debug("< %s: %s", k, v)
+            self._logger.debug("< %s: %s", k, v)
 
-        logging.debug("< ")
+        self._logger.debug("< ")
 
 
 class MetadataClient(BaseMetadataClient):
@@ -349,12 +361,12 @@ class MetadataClient(BaseMetadataClient):
         request_params = self._get_api_call_params(url, headers, method, body)
 
         if self._debug:
-            self._print_request_debug_info(request_params)
+            self._log_request_debug_info(request_params)
 
         response: Response = method_func(**request_params)
 
         if self._debug:
-            self._print_response_debug_info(response)
+            self._log_response_debug_info(response)
 
         self._check_response(response)
 
