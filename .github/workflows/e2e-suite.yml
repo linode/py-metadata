@@ -61,7 +61,7 @@ jobs:
           
       - name: Copy report.xml from hack directory to root directory
         run: |
-         cp hack/*_py_metadata_test_report.xml *_py_metadata_test_report.xml
+         cp hack/*_py_metadata_test_report.xml .
 
       - name: Add additional information to XML report
         run: |
