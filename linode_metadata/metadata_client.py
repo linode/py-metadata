@@ -6,6 +6,7 @@ It includes methods for retrieving and updating metadata information.
 import base64
 import datetime
 import json
+import logging
 from collections.abc import Awaitable
 from datetime import datetime, timedelta
 from importlib.metadata import version
@@ -38,6 +39,8 @@ class BaseMetadataClient:
         timeout=DEFAULT_API_TIMEOUT,
         managed_token=True,
         managed_token_expiry_seconds=3600,
+        debug=False,
+        debug_file=None,
     ):
         """
         The main interface to the Linode Metadata Service.
@@ -60,6 +63,11 @@ class BaseMetadataClient:
         :type managed_token_expiry_seconds: The number of seconds until a managed token
                                             should expire. (Default 3600)
         :type managed_token_expiry_seconds: int
+        :param debug: Enables debug mode if set to True.
+        :type debug: bool
+        :param debug_file: The file location to output the debug logs.
+                            Default to sys.stderr if not specified.
+        :type debug_file: str
         """
 
         if token is not None and managed_token:
@@ -70,6 +78,21 @@ class BaseMetadataClient:
         self.base_url = base_url
         self._append_user_agent = user_agent
         self.timeout = timeout
+        self._debug = debug
+        if debug:
+            self._logger = logging.getLogger("linode_metadata")
+            self._logger.setLevel(logging.DEBUG)
+            handler = (
+                logging.FileHandler(debug_file)
+                if debug_file
+                else logging.StreamHandler()
+            )
+            handler.setLevel(logging.DEBUG)
+            formatter = logging.Formatter(
+                "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+            )
+            handler.setFormatter(formatter)
+            self._logger.addHandler(handler)
 
         self._token = token
         self.client = None
@@ -194,6 +217,34 @@ class BaseMetadataClient:
             f"linode-py-metadata/{version('linode_metadata')}"
         ).strip()
 
+    def _log_request_debug_info(self, request_params):
+        """
+        Logging debug info for an HTTP request
+        """
+        for k, v in request_params.items():
+            if k == "headers":
+                for hk, hv in v.items():
+                    self._logger.debug("> %s: %s", hk, hv)
+            else:
+                self._logger.debug("> %s: %s", k, v)
+
+        self._logger.debug("> ")
+
+    def _log_response_debug_info(self, response):
+        """
+        Logging debug info for a response from requests
+        """
+        self._logger.debug(
+            "< %s %s %s",
+            response.http_version,
+            response.status_code,
+            response.reason_phrase,
+        )
+        for k, v in response.headers.items():
+            self._logger.debug("< %s: %s", k, v)
+
+        self._logger.debug("< ")
+
 
 class MetadataClient(BaseMetadataClient):
     """
@@ -208,6 +259,8 @@ class MetadataClient(BaseMetadataClient):
         timeout=DEFAULT_API_TIMEOUT,
         managed_token=True,
         managed_token_expiry_seconds=3600,
+        debug=False,
+        debug_file=None,
     ):
         """
         The main interface to the Linode Metadata Service.
@@ -227,9 +280,14 @@ class MetadataClient(BaseMetadataClient):
         :param managed_token: If true, the token for this client will be automatically
                               generated and refreshed.
         :type managed_token: bool
-        :type managed_token_expiry_seconds: The number of seconds until a managed token
+        :param managed_token_expiry_seconds: The number of seconds until a managed token
                                             should expire. (Default 3600)
         :type managed_token_expiry_seconds: int
+        :param debug: Enables debug mode if set to True.
+        :type debug: bool
+        :param debug_file: The file location to output the debug logs.
+                            Default to sys.stderr if not specified.
+        :type debug_file: str
         """
 
         super().__init__(
@@ -239,6 +297,8 @@ class MetadataClient(BaseMetadataClient):
             timeout=timeout,
             managed_token=managed_token,
             managed_token_expiry_seconds=managed_token_expiry_seconds,
+            debug=debug,
+            debug_file=debug_file,
         )
         self.client = httpx.Client()
 
@@ -300,7 +360,13 @@ class MetadataClient(BaseMetadataClient):
         url = self._prepare_url(endpoint)
         request_params = self._get_api_call_params(url, headers, method, body)
 
+        if self._debug:
+            self._log_request_debug_info(request_params)
+
         response: Response = method_func(**request_params)
+
+        if self._debug:
+            self._log_response_debug_info(response)
 
         self._check_response(response)
 
