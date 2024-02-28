@@ -62,7 +62,7 @@ jobs:
       - name: Copy report.xml from hack directory to root directory
         run: |
           filename=$(ls | grep -E '^[0-9]{12}_py_metadata_test_report\.xml$')
-          cp hack/filename filename
+          cp hack/$filename $filename
 
       - name: Add additional information to XML report
         run: |
