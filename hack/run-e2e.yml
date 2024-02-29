@@ -129,7 +129,7 @@
             PYTHON={{ venv_python }} make e2e-local
           register: run_tests
 
-        - name: Find report.xml file on remote server
+        - name: Find report file on remote server
           find:
             paths: "~/py-metadata-{{ run_id }}"
             patterns: "*_py_metadata_test_report.xml"
