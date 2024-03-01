@@ -1,17 +1,28 @@
 import pytest
+import pytest_asyncio
 
-import linode_metadata
-
-
-@pytest.fixture(scope="function")
-def metadata_client():
-    client = linode_metadata.MetadataClient()
-    return client
+from linode_metadata import MetadataAsyncClient, MetadataClient
 
 
-@pytest.fixture(scope="function")
-def metadata_client_unmanaged():
-    client = linode_metadata.MetadataClient(
-        managed_token=False,
-    )
-    return client
+@pytest.fixture(scope="session")
+def client():
+    with MetadataClient() as client:
+        yield client
+
+
+@pytest_asyncio.fixture()
+async def async_client():
+    async with MetadataAsyncClient() as async_client:
+        yield async_client
+
+
+@pytest.fixture(scope="session")
+def client_unmanaged():
+    with MetadataClient(managed_token=False) as client:
+        yield client
+
+
+@pytest_asyncio.fixture()
+async def async_client_unmanaged():
+    async with MetadataAsyncClient(managed_token=False) as async_client:
+        yield async_client

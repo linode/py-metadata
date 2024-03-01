@@ -1,10 +1,27 @@
 import re
 
-from linode_metadata.objects.networking import IPv4Networking, IPv6Networking
+import pytest
+
+from linode_metadata import MetadataAsyncClient, MetadataClient
+from linode_metadata.objects.networking import (
+    IPv4Networking,
+    IPv6Networking,
+    NetworkResponse,
+)
 
 
-def test_get_network_info(metadata_client):
-    network = metadata_client.get_network()
+def test_get_network_info(client: MetadataClient):
+    network = client.get_network()
+    inspect_network_response(network)
+
+
+@pytest.mark.asyncio
+async def test_async_get_network_info(async_client: MetadataAsyncClient):
+    network = await async_client.get_network()
+    inspect_network_response(network)
+
+
+def inspect_network_response(network: NetworkResponse):
 
     assert isinstance(network.interfaces, list)
     assert isinstance(network.ipv4, IPv4Networking)
