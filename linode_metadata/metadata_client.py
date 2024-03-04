@@ -17,9 +17,9 @@ from typing import Any, Callable, Optional, Type, Union
 import httpx
 from httpx import Response, TimeoutException
 
-from linode_metadata import NetworkResponse
 from linode_metadata.objects.error import ApiError, ApiTimeoutError
 from linode_metadata.objects.instance import InstanceResponse
+from linode_metadata.objects.networking import NetworkResponse
 from linode_metadata.objects.ssh_keys import SSHKeysResponse
 from linode_metadata.objects.token import MetadataToken
 
