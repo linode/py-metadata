@@ -3,21 +3,23 @@ This class provides functions for interacting with the Linode Metadata service.
 It includes methods for retrieving and updating metadata information.
 """
 
+from __future__ import annotations
+
 import base64
-import datetime
 import json
 import logging
 from collections.abc import Awaitable
 from datetime import datetime, timedelta
 from importlib.metadata import version
-from typing import Any, Callable, Optional, Union
+from types import TracebackType
+from typing import Any, Callable, Optional, Type, Union
 
 import httpx
 from httpx import Response, TimeoutException
 
-from linode_metadata import NetworkResponse
 from linode_metadata.objects.error import ApiError, ApiTimeoutError
 from linode_metadata.objects.instance import InstanceResponse
+from linode_metadata.objects.networking import NetworkResponse
 from linode_metadata.objects.ssh_keys import SSHKeysResponse
 from linode_metadata.objects.token import MetadataToken
 
@@ -119,9 +121,7 @@ class BaseMetadataClient:
 
     def _get_http_method(
         self, method: str
-    ) -> Optional[
-        Callable[..., Optional[Union[Awaitable[Response], Response]]]
-    ]:
+    ) -> Optional[Callable[..., Union[Response, Awaitable[Response]]]]:
         """
         Return a callable for making the API call.
         """
@@ -342,7 +342,7 @@ class MetadataClient(BaseMetadataClient):
         body=None,
         additional_headers=None,
         authenticated=True,
-    ) -> Union[str, dict]:
+    ) -> Any:
         if authenticated:
             self._validate_token()
 
@@ -363,7 +363,7 @@ class MetadataClient(BaseMetadataClient):
         if self._debug:
             self._log_request_debug_info(request_params)
 
-        response: Response = method_func(**request_params)
+        response = method_func(**request_params)
 
         if self._debug:
             self._log_response_debug_info(response)
@@ -372,7 +372,7 @@ class MetadataClient(BaseMetadataClient):
 
         return self._parse_response_body(response, content_type)
 
-    def generate_token(self, expiry_seconds=3600) -> Awaitable[MetadataToken]:
+    def generate_token(self, expiry_seconds=3600) -> MetadataToken:
         """
         Generates a token for accessing Metadata Service.
         NOTE: The generated token will NOT be implicitly
@@ -438,3 +438,227 @@ class MetadataClient(BaseMetadataClient):
         """
         response = self._api_call("GET", "/ssh-keys")
         return SSHKeysResponse(json_data=response)
+
+    def __enter__(self) -> MetadataClient:
+        self.client.__enter__()
+        if self._managed_token:
+            self.refresh_token()
+        return self
+
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]] = None,
+        exc_value: Optional[BaseException] = None,
+        traceback: Optional[TracebackType] = None,
+    ) -> None:
+        self._token = None
+        self.client.__exit__(exc_type, exc_value, traceback)
+
+
+class MetadataAsyncClient(BaseMetadataClient):
+    """
+    The main async client of the Linode Metadata Service.
+    """
+
+    def __init__(
+        self,
+        base_url=BASE_URL,
+        user_agent=None,
+        token=None,
+        timeout=DEFAULT_API_TIMEOUT,
+        managed_token=True,
+        managed_token_expiry_seconds=3600,
+        debug=False,
+        debug_file=None,
+    ):
+        """
+        The main interface to the Linode Metadata Service.
+
+        :param base_url: The base URL for Metadata API requests.  Generally, you shouldn't
+                         change this.
+        :type base_url: str
+        :param user_agent: What to append to the User Agent of all requests made
+                           by this client.  Setting this allows Linode's internal
+                           monitoring applications to track the usage of your
+                           application.  Setting this is not necessary, but some
+                           applications may desire this behavior.
+        :type user_agent: str
+        :param token: An existing token to use with this client. This field cannot
+                      be specified when token management is enabled.
+        :type token: Optional[str]
+        :param managed_token: If true, the token for this client will be automatically
+                              generated and refreshed.
+        :type managed_token: bool
+        :param managed_token_expiry_seconds: The number of seconds until a managed token
+                                            should expire. (Default 3600)
+        :type managed_token_expiry_seconds: int
+        :param debug: Enables debug mode if set to True.
+        :type debug: bool
+        :param debug_file: The file location to output the debug logs.
+                            Default to sys.stderr if not specified.
+        :type debug_file: str
+        """
+
+        super().__init__(
+            base_url=base_url,
+            user_agent=user_agent,
+            token=token,
+            timeout=timeout,
+            managed_token=managed_token,
+            managed_token_expiry_seconds=managed_token_expiry_seconds,
+            debug=debug,
+            debug_file=debug_file,
+        )
+        self.client = httpx.AsyncClient()
+
+    async def check_connection(self) -> None:
+        """
+        Checks for a connection to the Metadata Service, ensuring customer is inside a Linode.
+        """
+        try:
+            await self.client.get(self.base_url, timeout=self.timeout)
+        except TimeoutException as e:
+            raise ApiTimeoutError(
+                "Can't access Metadata service. "
+                "Please verify that you are inside a Linode."
+            ) from e
+
+    async def _validate_token(self) -> None:
+        """
+        Check whether the token is valid. Refresh the token if
+        it's expired and managed by this package.
+        """
+        # We should implicitly refresh the token if the user is enrolled in
+        # token management and the token has expired.
+        if self._managed_token and (
+            self._token is None or datetime.now() >= self._managed_token_expiry
+        ):
+            await self.refresh_token(
+                expiry_seconds=self._managed_token_expiry_seconds
+            )
+
+        if self._token is None:
+            raise RuntimeError(
+                "No token provided. Please use "
+                "MetadataClient.refresh_token() to create new token."
+            )
+
+    async def _api_call(
+        self,
+        method: str,
+        endpoint: str,
+        content_type="application/json",
+        body=None,
+        additional_headers=None,
+        authenticated=True,
+    ) -> Any:
+        if authenticated:
+            await self._validate_token()
+
+        method_func = self._get_http_method(method)
+        if method_func is None:
+            raise ValueError(f"Invalid API request method: {method}")
+
+        headers = self._prepare_headers(
+            method,
+            content_type,
+            additional_headers,
+            authenticated,
+        )
+
+        url = self._prepare_url(endpoint)
+        request_params = self._get_api_call_params(url, headers, method, body)
+
+        if self._debug:
+            self._log_request_debug_info(request_params)
+
+        response: Response = await method_func(**request_params)
+
+        if self._debug:
+            self._log_response_debug_info(response)
+
+        self._check_response(response)
+
+        return self._parse_response_body(response, content_type)
+
+    async def generate_token(self, expiry_seconds=3600) -> MetadataToken:
+        """
+        Generates a token for accessing Metadata Service.
+        NOTE: The generated token will NOT be implicitly
+        applied to the MetadataClient.
+        """
+
+        created = datetime.now()
+
+        response = await self._api_call(
+            "PUT",
+            "/token",
+            content_type="text/plain",
+            additional_headers={
+                "Metadata-Token-Expiry-Seconds": str(expiry_seconds)
+            },
+            authenticated=False,
+        )
+
+        return MetadataToken(
+            token=response, expiry_seconds=expiry_seconds, created=created
+        )
+
+    async def refresh_token(self, expiry_seconds: int = 3600) -> MetadataToken:
+        """
+        Regenerates a Metadata Service token.
+        """
+
+        result = await self.generate_token(expiry_seconds=expiry_seconds)
+
+        self.set_token(result.token)
+        self._managed_token_expiry = result.created + timedelta(
+            seconds=expiry_seconds
+        )
+
+        return result
+
+    async def get_user_data(self) -> str:
+        """
+        Returns the user data configured on your running Linode instance.
+        """
+        response = await self._api_call(
+            "GET", "/user-data", content_type="text/plain"
+        )
+        return base64.b64decode(response).decode("utf-8")
+
+    async def get_instance(self) -> InstanceResponse:
+        """
+        Returns information about the running Linode instance.
+        """
+        response = await self._api_call("GET", "/instance")
+        return InstanceResponse(json_data=response)
+
+    async def get_network(self) -> NetworkResponse:
+        """
+        Returns information about the running Linode instance’s network configuration.
+        """
+        response = await self._api_call("GET", "/network")
+        return NetworkResponse(json_data=response)
+
+    async def get_ssh_keys(self) -> SSHKeysResponse:
+        """
+        Get a mapping of public SSH Keys configured on your running Linode instance.
+        """
+        response = await self._api_call("GET", "/ssh-keys")
+        return SSHKeysResponse(json_data=response)
+
+    async def __aenter__(self) -> MetadataAsyncClient:
+        await self.client.__aenter__()
+        if self._managed_token:
+            await self.refresh_token()
+        return self
+
+    async def __aexit__(
+        self,
+        exc_type: Optional[Type[BaseException]] = None,
+        exc_value: Optional[BaseException] = None,
+        traceback: Optional[TracebackType] = None,
+    ):
+        self._token = None
+        await self.client.__aexit__(exc_type, exc_value, traceback)

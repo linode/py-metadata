@@ -10,3 +10,4 @@ dist
 venv
 .vscode
 .DS_Store
+hack/*_py_metadata_test_report.xml
