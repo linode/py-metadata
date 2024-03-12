@@ -8,44 +8,55 @@ from __future__ import annotations
 import base64
 import json
 import logging
+from abc import ABC
 from collections.abc import Awaitable
 from datetime import datetime, timedelta
 from importlib.metadata import version
+from pathlib import Path
 from types import TracebackType
 from typing import Any, Callable, Optional, Type, Union
 
 import httpx
 from httpx import Response, TimeoutException
 
+from linode_metadata.constants import LOGGER_NAME
 from linode_metadata.objects.error import ApiError, ApiTimeoutError
 from linode_metadata.objects.instance import InstanceResponse
 from linode_metadata.objects.networking import NetworkResponse
 from linode_metadata.objects.ssh_keys import SSHKeysResponse
 from linode_metadata.objects.token import MetadataToken
+from linode_metadata.watcher import AsyncMetadataWatcher, MetadataWatcher
 
 BASE_URL = "http://169.254.169.254/v1"
-DEFAULT_API_TIMEOUT = 10
+DEFAULT_API_TIMEOUT = 10.0
 
 
-class BaseMetadataClient:
+class BaseMetadataClient(ABC):
     """
     The base client of Linode Metadata Service that holds shared components
-    between MetadataClient and MetadataAsyncClient.
+    between MetadataClient and AsyncMetadataClient.
     """
+
+    watcher: Optional[Union[AsyncMetadataWatcher, MetadataWatcher]]
+    _watcher_cls: Type[Union[AsyncMetadataWatcher, MetadataWatcher]]
+    _managed_token_expiry: Optional[datetime]
 
     def __init__(
         self,
-        base_url=BASE_URL,
-        user_agent=None,
-        token=None,
-        timeout=DEFAULT_API_TIMEOUT,
-        managed_token=True,
-        managed_token_expiry_seconds=3600,
-        debug=False,
-        debug_file=None,
+        client: Union[httpx.AsyncClient, httpx.Client],
+        base_url: str = BASE_URL,
+        user_agent: Optional[str] = None,
+        token: Optional[str] = None,
+        timeout: float = DEFAULT_API_TIMEOUT,
+        managed_token: bool = True,
+        managed_token_expiry_seconds: float = 3600.0,
+        debug: bool = False,
+        debug_file: Optional[Union[Path, str]] = None,
     ):
         """
-        The main interface to the Linode Metadata Service.
+        The constructor of the base client of Linode Metadata Service. This
+        client should not be used directly, please use MetadataClient or
+        AsyncMetadataClient instead.
 
         :param base_url: The base URL for Metadata API requests.  Generally, you shouldn't
                          change this.
@@ -59,6 +70,8 @@ class BaseMetadataClient:
         :param token: An existing token to use with this client. This field cannot
                       be specified when token management is enabled.
         :type token: Optional[str]
+        :param timeout: Timeout of an API call in seconds.
+        :type timeout: float
         :param managed_token: If true, the token for this client will be automatically
                               generated and refreshed.
         :type managed_token: bool
@@ -82,9 +95,9 @@ class BaseMetadataClient:
         self.timeout = timeout
         self._debug = debug
         if debug:
-            self._logger = logging.getLogger("linode_metadata")
+            self._logger = logging.getLogger(LOGGER_NAME)
             self._logger.setLevel(logging.DEBUG)
-            handler = (
+            handler: logging.Handler = (
                 logging.FileHandler(debug_file)
                 if debug_file
                 else logging.StreamHandler()
@@ -97,7 +110,7 @@ class BaseMetadataClient:
             self._logger.addHandler(handler)
 
         self._token = token
-        self.client = None
+        self.client = client
 
         self._managed_token = managed_token
         self._managed_token_expiry_seconds = managed_token_expiry_seconds
@@ -217,7 +230,31 @@ class BaseMetadataClient:
             f"linode-py-metadata/{version('linode_metadata')}"
         ).strip()
 
-    def _log_request_debug_info(self, request_params):
+    def get_watcher(
+        self, default_poll_interval: Optional[Union[timedelta, float, int]]
+    ):
+        """
+        Get a watcher instance with this metadata client.
+
+        :param default_poll_interval: The default time interval for polling Linode
+                                        metadata services.
+        :type default_poll_interval: Optional[Union[timedelta, float, int]]
+        """
+        if default_poll_interval is None:
+            default_poll_interval = timedelta(minutes=1)
+
+        if not hasattr(self, "watcher") or self.watcher is None:
+            self.watcher = self._watcher_cls(
+                client=self,  # type: ignore
+                default_poll_interval=default_poll_interval,
+                debug=self._debug,
+            )
+        else:
+            self.watcher.set_default_poll_interval(default_poll_interval)
+
+        return self.watcher
+
+    def _log_request_debug_info(self, request_params: dict):
         """
         Logging debug info for an HTTP request
         """
@@ -230,7 +267,7 @@ class BaseMetadataClient:
 
         self._logger.debug("> ")
 
-    def _log_response_debug_info(self, response):
+    def _log_response_debug_info(self, response: Response):
         """
         Logging debug info for a response from requests
         """
@@ -251,8 +288,13 @@ class MetadataClient(BaseMetadataClient):
     The main sync client of the Linode Metadata Service.
     """
 
+    watcher: Optional[MetadataWatcher]
+    _watcher_cls: Type[MetadataWatcher]
+    client: httpx.Client
+
     def __init__(
         self,
+        client: Optional[httpx.Client] = None,
         base_url=BASE_URL,
         user_agent=None,
         token=None,
@@ -263,7 +305,7 @@ class MetadataClient(BaseMetadataClient):
         debug_file=None,
     ):
         """
-        The main interface to the Linode Metadata Service.
+        The constructor of the client of Linode Metadata Service.
 
         :param base_url: The base URL for Metadata API requests.  Generally, you shouldn't
                          change this.
@@ -277,6 +319,8 @@ class MetadataClient(BaseMetadataClient):
         :param token: An existing token to use with this client. This field cannot
                       be specified when token management is enabled.
         :type token: Optional[str]
+        :param timeout: Timeout of an API call in seconds.
+        :type timeout: float
         :param managed_token: If true, the token for this client will be automatically
                               generated and refreshed.
         :type managed_token: bool
@@ -290,7 +334,13 @@ class MetadataClient(BaseMetadataClient):
         :type debug_file: str
         """
 
+        if not client:
+            client = httpx.Client()
+
+        self._watcher_cls = MetadataWatcher
+
         super().__init__(
+            client=client,
             base_url=base_url,
             user_agent=user_agent,
             token=token,
@@ -300,7 +350,6 @@ class MetadataClient(BaseMetadataClient):
             debug=debug,
             debug_file=debug_file,
         )
-        self.client = httpx.Client()
 
     def check_connection(self):
         """
@@ -322,7 +371,11 @@ class MetadataClient(BaseMetadataClient):
         # We should implicitly refresh the token if the user is enrolled in
         # token management and the token has expired.
         if self._managed_token and (
-            self._token is None or datetime.now() >= self._managed_token_expiry
+            self._token is None
+            or (
+                self._managed_token_expiry
+                and datetime.now() >= self._managed_token_expiry
+            )
         ):
             self.refresh_token(
                 expiry_seconds=self._managed_token_expiry_seconds
@@ -439,6 +492,12 @@ class MetadataClient(BaseMetadataClient):
         response = self._api_call("GET", "/ssh-keys")
         return SSHKeysResponse(json_data=response)
 
+    def close(self):
+        """
+        Close the embedded HTTP client in this metadata client.
+        """
+        self.client.close()
+
     def __enter__(self) -> MetadataClient:
         self.client.__enter__()
         if self._managed_token:
@@ -455,26 +514,31 @@ class MetadataClient(BaseMetadataClient):
         self.client.__exit__(exc_type, exc_value, traceback)
 
 
-class MetadataAsyncClient(BaseMetadataClient):
+class AsyncMetadataClient(BaseMetadataClient):
     """
     The main async client of the Linode Metadata Service.
     """
 
+    watcher: Optional[AsyncMetadataWatcher]
+    _watcher_cls: Type[AsyncMetadataWatcher]
+    client: httpx.AsyncClient
+
     def __init__(
         self,
-        base_url=BASE_URL,
-        user_agent=None,
-        token=None,
-        timeout=DEFAULT_API_TIMEOUT,
-        managed_token=True,
-        managed_token_expiry_seconds=3600,
-        debug=False,
-        debug_file=None,
+        client: Optional[httpx.AsyncClient] = None,
+        base_url: str = BASE_URL,
+        user_agent: Optional[str] = None,
+        token: Optional[str] = None,
+        timeout: float = DEFAULT_API_TIMEOUT,
+        managed_token: bool = True,
+        managed_token_expiry_seconds: float = 3600.0,
+        debug: bool = False,
+        debug_file: Optional[Union[Path, str]] = None,
     ):
         """
-        The main interface to the Linode Metadata Service.
+        The constructor of the async client of Linode Metadata Service.
 
-        :param base_url: The base URL for Metadata API requests.  Generally, you shouldn't
+        :param base_url: The base URL for Metadata API requests. Generally, you shouldn't
                          change this.
         :type base_url: str
         :param user_agent: What to append to the User Agent of all requests made
@@ -486,6 +550,8 @@ class MetadataAsyncClient(BaseMetadataClient):
         :param token: An existing token to use with this client. This field cannot
                       be specified when token management is enabled.
         :type token: Optional[str]
+        :param timeout: Timeout of an API call in seconds.
+        :type timeout: float
         :param managed_token: If true, the token for this client will be automatically
                               generated and refreshed.
         :type managed_token: bool
@@ -499,7 +565,13 @@ class MetadataAsyncClient(BaseMetadataClient):
         :type debug_file: str
         """
 
+        if not client:
+            client = httpx.AsyncClient()
+
+        self._watcher_cls = AsyncMetadataWatcher
+
         super().__init__(
+            client=client,
             base_url=base_url,
             user_agent=user_agent,
             token=token,
@@ -509,7 +581,6 @@ class MetadataAsyncClient(BaseMetadataClient):
             debug=debug,
             debug_file=debug_file,
         )
-        self.client = httpx.AsyncClient()
 
     async def check_connection(self) -> None:
         """
@@ -531,7 +602,11 @@ class MetadataAsyncClient(BaseMetadataClient):
         # We should implicitly refresh the token if the user is enrolled in
         # token management and the token has expired.
         if self._managed_token and (
-            self._token is None or datetime.now() >= self._managed_token_expiry
+            self._token is None
+            or (
+                self._managed_token_expiry
+                and datetime.now() >= self._managed_token_expiry
+            )
         ):
             await self.refresh_token(
                 expiry_seconds=self._managed_token_expiry_seconds
@@ -648,7 +723,13 @@ class MetadataAsyncClient(BaseMetadataClient):
         response = await self._api_call("GET", "/ssh-keys")
         return SSHKeysResponse(json_data=response)
 
-    async def __aenter__(self) -> MetadataAsyncClient:
+    async def close(self):
+        """
+        Close the embedded HTTP client in this metadata client.
+        """
+        self.client.aclose()
+
+    async def __aenter__(self) -> AsyncMetadataClient:
         await self.client.__aenter__()
         if self._managed_token:
             await self.refresh_token()

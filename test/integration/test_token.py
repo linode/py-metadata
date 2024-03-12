@@ -6,7 +6,7 @@ import pytest
 
 import linode_metadata
 from linode_metadata import MetadataClient
-from linode_metadata.metadata_client import MetadataAsyncClient
+from linode_metadata.metadata_client import AsyncMetadataClient
 from linode_metadata.objects.error import ApiError
 from linode_metadata.objects.token import MetadataToken
 
@@ -39,9 +39,9 @@ def test_generate_and_use_new_metadata_token(client_unmanaged: MetadataClient):
     assert network is not None
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio(scope="session")
 async def test_generate_and_use_new_metadata_token_async(
-    async_client_unmanaged: MetadataAsyncClient,
+    async_client_unmanaged: AsyncMetadataClient,
 ):
     client = async_client_unmanaged
 
@@ -76,9 +76,9 @@ def test_verify_error_thrown_when_using_invalid_api_token(
     assert network is not None
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio(scope="session")
 async def test_verify_error_thrown_when_using_invalid_api_token_async(
-    async_client_unmanaged: MetadataAsyncClient, invalid_token: str
+    async_client_unmanaged: AsyncMetadataClient, invalid_token: str
 ):
     client = async_client_unmanaged
 
@@ -111,9 +111,9 @@ def test_unmanaged_token_expire(client_unmanaged: MetadataClient):
     assert "Unauthorized" in str(excinfo.value.json)
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio(scope="session")
 async def test_unmanaged_token_expire_async(
-    async_client_unmanaged: MetadataAsyncClient,
+    async_client_unmanaged: AsyncMetadataClient,
 ):
     client = async_client_unmanaged
 
@@ -143,9 +143,9 @@ def test_managed_token_auto_refresh():
     assert networking is not None
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio(scope="session")
 async def test_managed_token_auto_refresh_async():
-    client = linode_metadata.MetadataAsyncClient(
+    client = linode_metadata.AsyncMetadataClient(
         managed_token_expiry_seconds=1,
     )
 
@@ -153,7 +153,7 @@ async def test_managed_token_auto_refresh_async():
     instance = await client.get_instance()
     assert instance is not None
 
-    asyncio.sleep(2)
+    await asyncio.sleep(2)
 
     # Ensure the token is automatically refreshed
     networking = await client.get_network()

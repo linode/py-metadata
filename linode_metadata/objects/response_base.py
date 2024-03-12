@@ -5,7 +5,7 @@ It includes basic methods for handling JSON responses.
 
 import dataclasses
 from dataclasses import dataclass
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 
 @dataclass(init=False)
@@ -16,7 +16,7 @@ class ResponseBase:
     :type json_data: Dict[str, Any]
     """
 
-    def __init__(self, json_data: Dict[str, Any] = None):
+    def __init__(self, json_data: Optional[Dict[str, Any]] = None):
         if json_data is not None:
             self.populate(json_data)
 
