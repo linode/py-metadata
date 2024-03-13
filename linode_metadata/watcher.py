@@ -286,7 +286,6 @@ class MetadataWatcher(BaseMetadataWatcher):
                 if ignore_error:
                     traceback.print_exc()
                 else:
-                    self.client.close()
                     raise RuntimeError(
                         "Failed to poll from Linode Metadata API in the watcher"
                     ) from e
@@ -445,7 +444,6 @@ class AsyncMetadataWatcher(BaseMetadataWatcher):
                 if ignore_error:
                     traceback.print_exc()
                 else:
-                    self.client.close()
                     raise RuntimeError(
                         "Failed to poll from Linode Metadata API in the watcher"
                     ) from e
