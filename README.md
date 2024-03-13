@@ -70,15 +70,11 @@ Watchers are useful for monitor changes in the metadata, e.g. newly added IP add
 import asyncio
 from linode_metadata import AsyncMetadataClient
 
-instance_info = None
-
 async def get_metadata():
     async with AsyncMetadataClient() as client:
         watcher = client.get_watcher()
-
-        async for new_instance_info in watcher.watch_instance():
-            global instance_info
-            instance_info = new_instance_info
+        async for new_network_info in watcher.watch_network():
+            print(new_network_info)
 
 asyncio.run(get_metadata())
 ```
