@@ -45,10 +45,10 @@ jobs:
       - name: generate local SSH key
         run: ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa -N ""
 
-      - name: run e2e test
+      - name: run int-test test
         run: |
           status=0
-          if ! make e2e > test_output.txt; then
+          if ! make int-test > test_output.txt; then
             echo "EXIT_STATUS=1" >> $GITHUB_ENV
           fi
             cat test_output.txt

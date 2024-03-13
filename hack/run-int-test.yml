@@ -11,13 +11,13 @@
   tasks:
     - name: Load the cached runner ID
       stat:
-        path: '{{ playbook_dir }}/.e2e-runner-id'
+        path: '{{ playbook_dir }}/.int-test-runner-id'
       register: stat_cached_id
 
     - name: Generate a runner ID if it does not exist
       block:
         - copy:
-            dest: '{{ playbook_dir }}/.e2e-runner-id'
+            dest: '{{ playbook_dir }}/.int-test-runner-id'
             content: '{{ 999999 | random() }}'
       when: not stat_cached_id.stat.exists
 
@@ -26,7 +26,7 @@
         label_prefix: "{{ label_prefix }}"
         temp_token_name: '{{ temp_token_name }}'
         ssh_pubkey: '{{ lookup("file", ssh_pubkey_path) }}'
-        runner_id: '{{ lookup("file", playbook_dir ~ "/.e2e-runner-id") }}'
+        runner_id: '{{ lookup("file", playbook_dir ~ "/.int-test-runner-id") }}'
 
     - name: Create a temporary token for the plugin to consume
       no_log: true
@@ -126,7 +126,7 @@
           shell: |
             cd ~/py-metadata-{{ run_id }} && \
             source .test.env && \
-            PYTHON={{ venv_python }} make e2e-local
+            PYTHON={{ venv_python }} make int-test-local
           register: run_tests
 
         - name: Find report file on remote server

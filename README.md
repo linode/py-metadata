@@ -65,14 +65,14 @@ make test-deps
 After all dependencies have been installed, you can run the end-to-end test suite by running the following:
 
 ```bash
-make e2e
+make int-test
 ```
 
 If your local SSH public key is stored in a location other than `~/.ssh/id_rsa.pub`, 
 you may need to override the `TEST_PUBKEY` argument:
 
 ```bash
-make TEST_PUBKEY=/path/to/my/pubkey e2e
+make TEST_PUBKEY=/path/to/my/pubkey int-test
 ```
 
 **NOTE: To speed up subsequent test runs, the infrastructure provisioned for testing will persist after the test run is complete. 
@@ -80,7 +80,7 @@ This infrastructure is safe to manually remove.**
 
 ### Manual End-to-End Testing
 
-End-to-end tests can also be manually run using the `make e2e-local` target.
+End-to-end tests can also be manually run using the `make int-test-local` target.
 This test suite is expected to run from within a Linode instance and will likely 
 fail in other environments.
 
