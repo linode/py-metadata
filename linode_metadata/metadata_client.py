@@ -231,7 +231,8 @@ class BaseMetadataClient(ABC):
         ).strip()
 
     def get_watcher(
-        self, default_poll_interval: Optional[Union[timedelta, float, int]]
+        self,
+        default_poll_interval: Optional[Union[timedelta, float, int]] = None,
     ):
         """
         Get a watcher instance with this metadata client.
