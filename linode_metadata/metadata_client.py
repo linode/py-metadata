@@ -240,6 +240,8 @@ class BaseMetadataClient(ABC):
         :param default_poll_interval: The default time interval for polling Linode
                                         metadata services.
         :type default_poll_interval: Optional[Union[timedelta, float, int]]
+        :return: A watcher instance.
+        :rtype: Union[AsyncMetadataWatcher, MetadataWatcher]
         """
         if default_poll_interval is None:
             default_poll_interval = timedelta(minutes=1)
