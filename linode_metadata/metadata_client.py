@@ -233,7 +233,7 @@ class BaseMetadataClient(ABC):
     def get_watcher(
         self,
         default_poll_interval: Optional[Union[timedelta, float, int]] = None,
-    ):
+    ) -> Union[AsyncMetadataWatcher, MetadataWatcher]:
         """
         Get a watcher instance with this metadata client.
 
