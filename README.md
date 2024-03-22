@@ -1,5 +1,10 @@
 # Linode Metadata Client for Python
 
+[![Unit Tests](https://github.com/linode/py-metadata/actions/workflows/unit-tests.yml/badge.svg?branch=main)](https://github.com/linode/py-metadata/actions/workflows/unit-tests.yml)
+[![E2E Tests](https://github.com/linode/py-metadata/actions/workflows/e2e-suite.yml/badge.svg?branch=main)](https://github.com/linode/py-metadata/actions/workflows/e2e-suite.yml)
+[![PyPI version](https://badge.fury.io/py/linode-metadata.svg)](https://badge.fury.io/py/linode-metadata)
+[![Documentation Status](https://readthedocs.org/projects/linode-metadata/badge/?version=latest)](https://linode-metadata.readthedocs.io/en/latest/?badge=latest)
+
 This package allows Python projects to easily interact with the [Linode Metadata Service](https://www.linode.com/docs/products/compute/compute-instances/guides/metadata/?tabs=linode-api).
 
 ## Getting Started
