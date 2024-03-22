@@ -7,9 +7,15 @@ TEST_PUBKEY ?= ~/.ssh/id_rsa.pub
 
 VERSION_MODULE_DOCSTRING ?= \"\"\"\nThe version of linode_metadata.\n\"\"\"\n\n
 
+.DEFAULT_GOAL := install
+
+# Define the REPORT_TIMESTAMP and dynamic TOD report filename
+REPORT_TIMESTAMP := $(shell date +'%Y%m%d%H%M')
+REPORT_FILENAME:=${REPORT_TIMESTAMP}_py_metadata_test_report.xml
+
 .PHONY: clean
 clean:
-	rm -rf dist
+	rm -rf dist linode_metadata.egg-info build
 
 .PHONY: build
 build: clean create-version
@@ -28,26 +34,32 @@ create-version:
 dev-install: create-version
 	$(PYTHON) -m pip install -e ".[dev]"
 
+# deps is an alias of test-deps, and other dependencies
+# will be installed with the package itself by pip
+.PHONY: deps
+deps: test-deps
+
 .PHONY: test-deps
 test-deps:
 	$(PYTHON) -m pip install --upgrade ansible -r https://raw.githubusercontent.com/linode/ansible_linode/main/requirements.txt
 	ansible-galaxy collection install linode.cloud
 
+.PHONY: test
+test: unit-test int-test
+
 # Runs the E2E test suite on a host provisioned by Ansible.
-.PHONY: e2e
-e2e:
-	ANSIBLE_HOST_KEY_CHECKING=False ANSIBLE_STDOUT_CALLBACK=debug ansible-playbook -v --extra-vars="debug=${LINODE_DEBUG} ssh_pubkey_path=${TEST_PUBKEY} cleanup_linode=${CLEANUP_TEST_LINODE_INSTANCE}" ./hack/run-e2e.yml
+.PHONY: int-test
+int-test:
+	ANSIBLE_HOST_KEY_CHECKING=False ANSIBLE_STDOUT_CALLBACK=debug ansible-playbook -v --extra-vars="debug=${LINODE_DEBUG} ssh_pubkey_path=${TEST_PUBKEY} cleanup_linode=${CLEANUP_TEST_LINODE_INSTANCE}" ./hack/run-int-test.yml
 
-
-# Define the timestamp and dynamic report filename
-timestamp := $(shell date +'%Y%m%d%H%M')
-report_filename:=${timestamp}_py_metadata_test_report.xml
+.PHONY: test-local
+test-local: unit-test int-test-local
 
 # Runs the E2E test suite locally.
 # NOTE: E2E tests must be run from within a Linode.
-.PHONY: e2e-local
-e2e-local:
-	$(PYTHON) -m pytest test/integration/ --junitxml="$(report_filename)"
+.PHONY: int-test-local
+int-test-local:
+	$(PYTHON) -m pytest test/integration/ --junitxml="$(REPORT_FILENAME)"
 
 .PHONY: lint
 lint:
@@ -72,5 +84,5 @@ autoflake:
 format: black isort autoflake
 
 .PHONY: unit-test
-unittest:
+unit-test:
 	$(PYTHON) -m pytest test/unit/
