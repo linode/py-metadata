@@ -27,7 +27,18 @@ dependencies = ["httpx"]
 dynamic = ["version"]
 
 [project.optional-dependencies]
-dev = ["pytest", "black", "isort", "pylint", "autoflake", "Sphinx>=7.2.6", "pytest-asyncio"]
+dev = [
+    "pytest",
+    "black",
+    "isort",
+    "pylint",
+    "autoflake",
+    "Sphinx>=7.2.6",
+    "pytest-asyncio",
+    "sphinx-lint",
+]
+
+doc = ["Sphinx>=7.2.6"]
 
 [project.urls]
 homepage = "https://github.com/linode/py-metadata"

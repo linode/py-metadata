@@ -28,6 +28,7 @@ Table of Contents
    :maxdepth: 2
 
    linode_metadata/metadata_client
+   linode_metadata/watcher
    linode_metadata/objects/instance
    linode_metadata/objects/networking
    linode_metadata/objects/ssh_keys
