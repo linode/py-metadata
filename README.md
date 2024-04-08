@@ -17,7 +17,7 @@ This package allows Python projects to easily interact with the [Linode Metadata
 ### Installation
 
 ```bash
-pip install linode_metadata
+pip install linode-metadata
 ```
 
 ### Building from Source
@@ -46,7 +46,7 @@ user_data = client.get_user_data()
 
 print("Instance ID:", instance_info.id)
 print("Public IPv4:", network_info.ipv4.public[0])
-print("SSH Keys:", "; ".join(ssh_info.users.root))
+print("SSH Keys:", "; ".join(ssh_info.users))
 print("User Data:", user_data)
 ```
 
