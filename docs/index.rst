@@ -11,9 +11,9 @@ This library can be used to interact with the Metadata Service API.
 Installation
 ------------
 
-To install through pypi::
+To install through PyPI::
 
-   pip install linode_metadata
+   pip install linode-metadata
 
 To install from source::
 
