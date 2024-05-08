@@ -152,6 +152,20 @@
             ignore_errors: true
 
 
+        # Determine overall playbook status based on task results
+        - name: Set playbook status based on task outcomes
+          set_fact:
+            playbook_failed: true
+          when:
+            - run_tests is failed  # Check if run_tests task failed
+            - report_files is failed
+
+        # Fail the playbook if any critical tasks have failed
+        - name: Fail the playbook if necessary
+          fail:
+            msg: "One or more critical tasks failed"
+          when: playbook_failed | default(false)
+
       rescue:
         - debug:
             msg: Failed to run E2E tests, rescuing for cleanup...
