@@ -52,10 +52,16 @@ jobs:
           CLEANUP_TEST_LINODE_INSTANCE: true
           LINODE_TOKEN: ${{ secrets.DX_LINODE_TOKEN }}
 
+      - name: Copy report.xml from hack directory to root directory
+        if: always()
+        run: |
+          ls -l
+          ls -l hack/
+          cp hack/*_py_metadata_test_report.xml .
+
       - name: Copy report to root and Upload test results
         if: always()
         run: |
-          cp hack/*_py_metadata_test_report.xml .
           filename=$(ls | grep -E '^[0-9]{12}_py_metadata_test_report\.xml$')
           python tod_scripts/add_to_xml_test_report.py \
           --branch_name "${GITHUB_REF#refs/*/}" \
