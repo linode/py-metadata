@@ -79,8 +79,8 @@
     - setup:
       register: setup_status
       until: setup_status is success
-      delay: 3
-      retries: 30
+      delay: 10
+      retries: 330
   tasks:
     - block:
         - name: Wait for cloud-init to finish initialization
@@ -128,6 +128,7 @@
             source .test.env && \
             PYTHON={{ venv_python }} make int-test-local
           register: run_tests
+          ignore_errors: true  # Continue playbook execution even if this step fails
 
         - name: Find report file on remote server
           find:
@@ -135,6 +136,7 @@
             patterns: "*_py_metadata_test_report.xml"
             file_type: file
           register: report_files
+          ignore_errors: true  # Continue to next step if no files are found
 
         - name: Extract filename from the found files
           set_fact:
@@ -147,7 +149,8 @@
             dest: "./"
             flat: yes
             remote_src: yes
-            ignore_errors: yes
+            ignore_errors: true
+
 
       rescue:
         - debug:
