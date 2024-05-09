@@ -26,7 +26,6 @@ DEFAULT_POLL_INTERVAL = timedelta(minutes=1)
 
 
 class BaseMetadataWatcher(ABC):
-
     _logger: Logger
 
     def __init__(
