@@ -132,8 +132,10 @@
 
         - name: Set playbook_failed based on E2E test result
           set_fact:
-            playbook_failed: true
-          when: run_tests.rc != 0
+            playbook_failed: "{{ run_tests.rc != 0 }}"
+          vars:
+            playbook_failed: false # make it default to false if no failure detected
+          when: run_tests is defined and run_tests.rc is defined
 
         - name: Find report file on remote server
           find:
@@ -159,7 +161,7 @@
         # Fail the playbook if necessary
         - name: Fail the playbook if E2E test suite failed
           fail:
-            msg: "E2E test suite failed"
+            msg: "E2E test suite failed, Check step above.."
           when: playbook_failed
 
       rescue:
