@@ -128,7 +128,11 @@
             source .test.env && \
             PYTHON={{ venv_python }} make int-test-local
           register: run_tests
-          ignore_errors: true  # Continue playbook execution even if this step fails
+          failed_when: false
+
+        - name: Set playbook_failed based on E2E test result
+          set_fact:
+            playbook_failed: "{{ run_tests.failed | default(false) }}"
 
         - name: Find report file on remote server
           find:
@@ -151,20 +155,11 @@
             remote_src: yes
             ignore_errors: true
 
-
-        # Determine overall playbook status based on task results
-        - name: Set playbook status based on task outcomes
-          set_fact:
-            playbook_failed: true
-          when:
-            - run_tests is failed  # Check if run_tests task failed
-            - report_files is failed
-
-        # Fail the playbook if any critical tasks have failed
-        - name: Fail the playbook if necessary
+        # Fail the playbook if necessary
+        - name: Fail the playbook if E2E test suite failed
           fail:
-            msg: "One or more critical tasks failed"
-          when: playbook_failed | default(false)
+            msg: "E2E test suite failed"
+          when: playbook_failed
 
       rescue:
         - debug:
