@@ -128,11 +128,12 @@
             source .test.env && \
             PYTHON={{ venv_python }} make int-test-local
           register: run_tests
-          failed_when: false
+          ignore_errors: true
 
         - name: Set playbook_failed based on E2E test result
           set_fact:
-            playbook_failed: "{{ run_tests.failed | default(false) }}"
+            playbook_failed: true
+          when: run_tests.rc != 0
 
         - name: Find report file on remote server
           find:

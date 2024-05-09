@@ -55,7 +55,6 @@ jobs:
       - name: Copy report.xml from hack directory to root directory
         if: always()
         run: |
-          ls -l
           ls -l hack/
           cp hack/*_py_metadata_test_report.xml .
 
