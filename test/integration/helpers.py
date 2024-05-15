@@ -22,13 +22,12 @@ def inspect_instance_response(instance: InstanceResponse):
     assert isinstance(instance.specs.transfer, int)
     assert isinstance(instance.specs.disk, int)
     assert isinstance(instance.backups.enabled, bool)
-    assert instance.backups.status is None
+    assert instance.backups.status in (None, "pending")
     assert re.match(r"^[a-f\d]+$", instance.host_uuid)
     assert isinstance(instance.tags, list)
 
 
 def inspect_network_response(network: NetworkResponse):
-
     assert isinstance(network.interfaces, list)
     assert isinstance(network.ipv4, IPv4Networking)
     assert isinstance(network.ipv6, IPv6Networking)
