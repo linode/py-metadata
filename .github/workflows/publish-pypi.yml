@@ -1,3 +1,6 @@
+# PyPI trusted publisher config will need an update if this file is renamed.
+# See: https://docs.pypi.org/trusted-publishers/adding-a-publisher/
+
 name: release
 on:
   workflow_dispatch: null
@@ -24,6 +27,4 @@ jobs:
           LINODE_METADATA_VERSION: ${{ github.event.release.tag_name }}
 
       - name: Publish the release artifacts to PyPI
-        uses: pypa/gh-action-pypi-publish@2f6f737ca5f74c637829c0f5c3acd0e29ea5e8bf # pin@release/v1.8.11
-        with:
-          password: ${{ secrets.PYPI_API_TOKEN }}
+        uses: pypa/gh-action-pypi-publish@f7600683efdcb7656dec5b29656edb7bc586e597 # pin@release/v1.10.3
