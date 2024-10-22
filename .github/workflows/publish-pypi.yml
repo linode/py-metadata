@@ -1,3 +1,6 @@
+# PyPI trusted publisher config will need an update if this file is renamed.
+# See: https://docs.pypi.org/trusted-publishers/adding-a-publisher/
+
 name: release
 on:
   workflow_dispatch: null
@@ -5,7 +8,11 @@ on:
     types: [ published ]
 jobs:
   pypi-release:
+    permissions:
+      # IMPORTANT: this permission is mandatory for trusted publishing
+      id-token: write
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -25,5 +32,3 @@ jobs:
 
       - name: Publish the release artifacts to PyPI
         uses: pypa/gh-action-pypi-publish@f7600683efdcb7656dec5b29656edb7bc586e597 # pin@release/v1.10.3
-        with:
-          password: ${{ secrets.PYPI_API_TOKEN }}
