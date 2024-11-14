@@ -3,10 +3,12 @@ name: E2E Tests
 on:
   workflow_dispatch:
     inputs:
+      commit_sha:
+        description: 'The hash value of the commit.'
+        required: false
       python-version:
         description: 'Specify Python version to use'
         required: false
-        default: '3.10'
       run-eol-python-version:
         description: 'Run EOL python version?'
         required: false
@@ -19,6 +21,11 @@ on:
     branches:
       - main
       - dev
+
+env:
+  DEFAULT_PYTHON_VERSION: "3.9"
+  EOL_PYTHON_VERSION: "3.8"
+  EXIT_STATUS: 0
 
 jobs:
   run-tests:
@@ -43,7 +50,7 @@ jobs:
       - name: setup python 3
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ inputs.run-eol-python-version == 'true' && '3.9' || inputs.python-version }}
+          python-version: ${{ inputs.run-eol-python-version == 'true' && env.EOL_PYTHON_VERSION || inputs.python-version || env.DEFAULT_PYTHON_VERSION }}
 
       - name: install or update Python build system
         run: python3 -m pip install -U wheel setuptools certifi pip boto3
