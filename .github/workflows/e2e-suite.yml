@@ -5,11 +5,27 @@ on:
     inputs:
       commit_sha:
         description: 'The hash value of the commit.'
-        required: true
+        required: false
+      python-version:
+        description: 'Specify Python version to use'
+        required: false
+      run-eol-python-version:
+        description: 'Run EOL python version?'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
   push:
     branches:
       - main
       - dev
+
+env:
+  DEFAULT_PYTHON_VERSION: "3.10"
+  EOL_PYTHON_VERSION: "3.9"
+  EXIT_STATUS: 0
 
 jobs:
   run-tests:
@@ -17,24 +33,15 @@ jobs:
     steps:
       - name: checkout repo
         uses: actions/checkout@v4
-        if: ${{ inputs.commit_sha != '' }}
         with:
-          ref: ${{ inputs.commit_sha }}
-          fetch-depth: 0
-          submodules: 'recursive'
-
-      - name: checkout repo
-        uses: actions/checkout@v4
-        if: ${{ inputs.commit_sha == '' }}
-        with:
-          ref: ${{ inputs.sha }}
+          ref: ${{ inputs.commit_sha || inputs.sha }}
           fetch-depth: 0
           submodules: 'recursive'
 
       - name: setup python 3
         uses: actions/setup-python@v5
         with:
-          python-version: '3.x'
+          python-version: ${{ inputs.run-eol-python-version == 'true' && env.EOL_PYTHON_VERSION || inputs.python-version || env.DEFAULT_PYTHON_VERSION }}
 
       - name: install or update Python build system
         run: python3 -m pip install -U wheel setuptools certifi pip boto3
