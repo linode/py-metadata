@@ -1,4 +1,4 @@
-name: Unit Tests
+name: Continues Integration
 
 on:
   workflow_dispatch: null
@@ -6,7 +6,7 @@ on:
   pull_request:
 
 jobs:
-  run-tests:
+  run-tests-lint:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -20,12 +20,11 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: install or update Python build system
-        run: python3 -m pip install -U wheel setuptools certifi pip
-
       - name: install the package with dev tools
         run: make dev-install
 
       - name: run unit tests
         run: make unit-test
 
+      - name: run linter
+        run: make lint
