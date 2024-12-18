@@ -11,7 +11,7 @@ This package allows Python projects to easily interact with the [Linode Metadata
 
 ### Prerequisites
 
-- Python >= 3.8
+- Python >= 3.9
 - A running [Linode Instance](https://www.linode.com/docs/api/linode-instances/)
 
 ### Installation
