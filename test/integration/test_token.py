@@ -127,7 +127,7 @@ async def test_unmanaged_token_expire_async(
 
 
 def test_managed_token_auto_refresh():
-    client = linode_metadata.MetadataClient(
+    client = MetadataClient(
         managed_token_expiry_seconds=1,
     )
 
@@ -144,7 +144,7 @@ def test_managed_token_auto_refresh():
 
 @pytest.mark.asyncio(scope="session")
 async def test_managed_token_auto_refresh_async():
-    client = linode_metadata.AsyncMetadataClient(
+    client = AsyncMetadataClient(
         managed_token_expiry_seconds=1,
     )
 
