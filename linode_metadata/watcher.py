@@ -8,7 +8,6 @@ from abc import ABC, abstractmethod
 from collections.abc import AsyncGenerator, Awaitable, Callable, Generator
 from dataclasses import asdict
 from datetime import timedelta
-from logging import Logger
 from typing import TYPE_CHECKING, Optional, Union
 
 from linode_metadata.constants import LOGGER_NAME
@@ -26,7 +25,7 @@ DEFAULT_POLL_INTERVAL = timedelta(minutes=1)
 
 
 class BaseMetadataWatcher(ABC):
-    _logger: Logger
+    _logger: logging.Logger
 
     def __init__(
         self,
