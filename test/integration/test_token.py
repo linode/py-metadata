@@ -4,7 +4,6 @@ from datetime import datetime
 
 import pytest
 
-import linode_metadata
 from linode_metadata import MetadataClient
 from linode_metadata.metadata_client import AsyncMetadataClient
 from linode_metadata.objects.error import ApiError
