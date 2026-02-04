@@ -5,7 +5,7 @@ import pytest
 from linode_metadata import AsyncMetadataClient, MetadataClient
 
 
-def test_get_ssh_keys(client: MetadataClient):
+def test_get_ssh_keys_sync(client: MetadataClient):
     ssh_keys = client.get_ssh_keys()
     inspect_ssh_keys_response(ssh_keys)
 
