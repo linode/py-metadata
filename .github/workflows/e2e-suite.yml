@@ -19,9 +19,12 @@ on:
           - 'false'
       test_report_upload:
         description: 'Indicates whether to upload the test report to object storage. Defaults to "false"'
-        type: boolean
+        type: choice
         required: false
-        default: false
+        default: 'false'
+        options:
+          - 'true'
+          - 'false'
   push:
     branches:
       - main
@@ -71,7 +74,7 @@ jobs:
           cp hack/*_py_metadata_test_report.xml .
 
       - name: Add variables and upload test results
-        if: ${{ always() && github.repository == 'linode/py-metadata' && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.test_report_upload)) }}
+        if: always() && github.repository == 'linode/py-metadata' && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.test_report_upload == 'true'))
         run: |
           filename=$(ls | grep -E '^[0-9]{12}_py_metadata_test_report\.xml$')
           python3 e2e_scripts/tod_scripts/xml_to_obj_storage/scripts/add_gha_info_to_xml.py \
