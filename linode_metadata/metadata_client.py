@@ -6,6 +6,7 @@ It includes methods for retrieving and updating metadata information.
 from __future__ import annotations
 
 import base64
+import gzip
 import json
 import logging
 from abc import ABC
@@ -29,6 +30,7 @@ from linode_metadata.watcher import AsyncMetadataWatcher, MetadataWatcher
 
 BASE_URL = "http://169.254.169.254/v1"
 DEFAULT_API_TIMEOUT = 10.0
+GZIP_MAGIC = b"\x1f\x8b\x08"
 
 
 class BaseMetadataClient(ABC):
@@ -131,6 +133,21 @@ class BaseMetadataClient(ABC):
             raise ValueError(f"Invalid Content-Type: {content_type}")
 
         return handler()
+
+    @staticmethod
+    def _decode_user_data(encoded: Union[bytes, str]) -> str:
+        """
+        Decode user-data from base64 and gunzip it when the payload is gzipped.
+
+        :param encoded: Base64-encoded user-data from the Metadata Service.
+        :type encoded: Union[bytes, str]
+        :returns: The decoded user-data string.
+        :rtype: str
+        """
+        raw = base64.b64decode(encoded)
+        if raw.startswith(GZIP_MAGIC):
+            raw = gzip.decompress(raw)
+        return raw.decode("utf-8")
 
     def _get_http_method(
         self, method: str
@@ -468,11 +485,14 @@ class MetadataClient(BaseMetadataClient):
     def get_user_data(self) -> str:
         """
         Returns the user data configured on your running Linode instance.
+
+        NOTE: The result is automatically decoded from base64 and gunzipped
+        when needed.
         """
         response = self._api_call(
             "GET", "/user-data", content_type="text/plain"
         )
-        return base64.b64decode(response).decode("utf-8")
+        return self._decode_user_data(response)
 
     def get_instance(self) -> InstanceResponse:
         """
@@ -699,11 +719,14 @@ class AsyncMetadataClient(BaseMetadataClient):
     async def get_user_data(self) -> str:
         """
         Returns the user data configured on your running Linode instance.
+
+        NOTE: The result is automatically decoded from base64 and gunzipped
+        when needed.
         """
         response = await self._api_call(
             "GET", "/user-data", content_type="text/plain"
         )
-        return base64.b64decode(response).decode("utf-8")
+        return self._decode_user_data(response)
 
     async def get_instance(self) -> InstanceResponse:
         """
