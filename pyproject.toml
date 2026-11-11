@@ -8,7 +8,7 @@ name = "linode_metadata"
 authors = [{ name = "Linode", email = "developers@linode.com" }]
 description = "A client to interact with the Linode Metadata service in Python."
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 license = { text = "Apache-2.0" }
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -17,11 +17,11 @@ classifiers = [
     "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15",
 ]
 dependencies = ["httpx"]
 dynamic = ["version"]
@@ -29,7 +29,7 @@ dynamic = ["version"]
 [project.optional-dependencies]
 dev = [
     "pytest",
-    "black",
+    "black>=26.10.1",
     "isort",
     "pylint",
     "autoflake",
@@ -56,7 +56,7 @@ line_length = 80
 
 [tool.black]
 line-length = 80
-target-version = ["py39", "py310", "py311", "py312", "py313"]
+target-version = ["py311", "py312", "py313", "py314", "py315"]
 
 [tool.autoflake]
 expand-star-imports = true
