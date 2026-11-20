@@ -3,6 +3,7 @@ import re
 import pytest
 
 from linode_metadata.objects.instance import InstanceResponse
+from linode_metadata.objects.maintenance import MaintenanceEventsResponse
 from linode_metadata.objects.networking import (
     IPv4Networking,
     IPv6Networking,
@@ -25,12 +26,25 @@ def inspect_instance_response(instance: InstanceResponse):
     assert instance.backups.status in (None, "pending")
     assert re.match(r"^[a-f\d]+$", instance.host_uuid)
     assert isinstance(instance.tags, list)
+    assert isinstance(instance.account_euuid, str)
+    assert isinstance(instance.image.id, str)
+    assert isinstance(instance.image.label, str)
 
 
 def inspect_network_response(network: NetworkResponse):
     assert isinstance(network.interfaces, list)
     assert isinstance(network.ipv4, IPv4Networking)
     assert isinstance(network.ipv6, IPv6Networking)
+    assert isinstance(network.ipv4.vpc, list)
+    assert isinstance(network.ipv6.vpc, list)
+
+    for interface in network.interfaces:
+        assert isinstance(interface.id, int)
+        if interface.vpc is not None:
+            assert (
+                interface.vpc.subnet.ipv4 is not None
+                or interface.vpc.subnet.ipv6 is not None
+            )
 
     ipv4_pattern = re.compile(r"^\d{1,3}(\.\d{1,3}){3}/\d+$")
     ipv6_pattern = re.compile(r"^[0-9a-fA-F:]+/\d+$")
@@ -41,6 +55,18 @@ def inspect_network_response(network: NetworkResponse):
     for ip in [network.ipv6.slaac, network.ipv6.link_local]:
         if ip is not None:
             assert ipv6_pattern.match(ip)
+
+
+def inspect_maintenance_events_response(
+    response: MaintenanceEventsResponse,
+):
+    assert isinstance(response.data, list)
+    assert isinstance(response.page, int)
+    assert isinstance(response.pages, int)
+    assert isinstance(response.results, int)
+
+    for event in response.data:
+        assert isinstance(event.maintenance_id, int)
 
 
 def inspect_ssh_keys_response(ssh_keys: SSHKeysResponse):

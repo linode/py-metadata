@@ -38,7 +38,7 @@ class ResponseBase:
             value = json_data[json_key]
 
             field_type = self._resolve_underlying_type(field.type)
-            if issubclass(field_type, ResponseBase):
+            if value is not None and issubclass(field_type, ResponseBase):
                 if isinstance(value, list):
                     value = [field_type(json_data=v) for v in value]
                 else:

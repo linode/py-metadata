@@ -15,7 +15,15 @@ class InstanceBackups(ResponseBase):
     """
 
     enabled: bool
-    status: Optional[List[str]]
+    status: Optional[str]
+
+
+@dataclass(init=False)
+class InstanceImage(ResponseBase):
+    """The image used to provision the instance."""
+
+    id: str
+    label: str
 
 
 @dataclass(init=False)
@@ -41,7 +49,9 @@ class InstanceResponse(ResponseBase):
     host_uuid: str
     label: str
     region: str
-    tags: str
+    tags: List[str]
     type: str
     specs: InstanceSpecs
     backups: InstanceBackups
+    account_euuid: str
+    image: InstanceImage
