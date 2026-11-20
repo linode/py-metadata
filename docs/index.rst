@@ -30,6 +30,7 @@ Table of Contents
    linode_metadata/metadata_client
    linode_metadata/watcher
    linode_metadata/objects/instance
+   linode_metadata/objects/maintenance
    linode_metadata/objects/networking
    linode_metadata/objects/ssh_keys
    linode_metadata/objects/token

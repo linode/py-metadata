@@ -23,6 +23,7 @@ from httpx import Response, TimeoutException
 from linode_metadata.constants import LOGGER_NAME
 from linode_metadata.objects.error import ApiError, ApiTimeoutError
 from linode_metadata.objects.instance import InstanceResponse
+from linode_metadata.objects.maintenance import MaintenanceEventsResponse
 from linode_metadata.objects.networking import NetworkResponse
 from linode_metadata.objects.ssh_keys import SSHKeysResponse
 from linode_metadata.objects.token import MetadataToken
@@ -508,6 +509,11 @@ class MetadataClient(BaseMetadataClient):
         response = self._api_call("GET", "/network")
         return NetworkResponse(json_data=response)
 
+    def get_maintenance_events(self) -> MaintenanceEventsResponse:
+        """Return maintenance events and their pagination metadata."""
+        response = self._api_call("GET", "/maintenance/events")
+        return MaintenanceEventsResponse(json_data=response)
+
     def get_ssh_keys(self) -> SSHKeysResponse:
         """
         Get a mapping of public SSH Keys configured on your running Linode instance.
@@ -741,6 +747,11 @@ class AsyncMetadataClient(BaseMetadataClient):
         """
         response = await self._api_call("GET", "/network")
         return NetworkResponse(json_data=response)
+
+    async def get_maintenance_events(self) -> MaintenanceEventsResponse:
+        """Return maintenance events and their pagination metadata."""
+        response = await self._api_call("GET", "/maintenance/events")
+        return MaintenanceEventsResponse(json_data=response)
 
     async def get_ssh_keys(self) -> SSHKeysResponse:
         """

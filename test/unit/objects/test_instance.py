@@ -2,6 +2,7 @@ from typing import Any, Dict
 
 from linode_metadata.objects.instance import (
     InstanceBackups,
+    InstanceImage,
     InstanceResponse,
     InstanceSpecs,
 )
@@ -9,7 +10,7 @@ from linode_metadata.objects.instance import (
 # Mocked JSON data for testing
 instance_backups_data: Dict[str, Any] = {
     "enabled": True,
-    "status": ["successful", "ready"],
+    "status": "complete",
 }
 
 instance_specs_data: Dict[str, Any] = {
@@ -25,10 +26,12 @@ instance_response_data: Dict[str, Any] = {
     "host_uuid": "3a3ddd59d9a78bb8de041391075df44de62bfec8",
     "label": "my-linode",
     "region": "us-east",
-    "tags": "web-server",
+    "tags": ["web-server"],
     "type": "g6-standard-2",
     "specs": instance_specs_data,
     "backups": instance_backups_data,
+    "account_euuid": "account-uuid",
+    "image": {"id": "linode/ubuntu24.04", "label": "Ubuntu 24.04 LTS"},
 }
 
 
@@ -36,7 +39,7 @@ def test_instance_backups():
     instance_backups = InstanceBackups(instance_backups_data)
 
     assert instance_backups.enabled is True
-    assert instance_backups.status == ["successful", "ready"]
+    assert instance_backups.status == "complete"
 
 
 def test_instance_specs():
@@ -59,8 +62,16 @@ def test_instance_response():
     )
     assert instance_response.label == "my-linode"
     assert instance_response.region == "us-east"
-    assert instance_response.tags == "web-server"
+    assert instance_response.tags == ["web-server"]
     assert instance_response.type == "g6-standard-2"
 
     assert instance_response.specs.vcpus == 2
     assert instance_response.backups.enabled is True
+    assert instance_response.account_euuid == "account-uuid"
+    assert isinstance(instance_response.image, InstanceImage)
+    assert instance_response.image.id == "linode/ubuntu24.04"
+    assert instance_response.image.label == "Ubuntu 24.04 LTS"
+
+
+def test_instance_nullable_backup_status():
+    assert InstanceBackups({"enabled": False, "status": None}).status is None
