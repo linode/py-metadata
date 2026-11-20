@@ -14,7 +14,7 @@
 ## Build And Test
 - Install dev dependencies with `make dev-install`; this also regenerates [linode_metadata/version.py](linode_metadata/version.py) through the `create-version` target.
 - Run fast local checks with `make unit-test` and `make lint`. Use `make format` to run Black, isort, and autoflake.
-- Run `make build` for packaging checks. The package supports Python `>=3.9` and configures Black/isort line length at 80 in [pyproject.toml](pyproject.toml).
+- Run `make build` for packaging checks. The package supports Python `>=3.11` and configures Black/isort line length at 80 in [pyproject.toml](pyproject.toml).
 - Integration tests require the Metadata Service from inside a Linode or Ansible-provisioned test infrastructure. Do not run `make int-test`, `make int-test-local`, or `make test` unless the user asks for integration coverage and the required `LINODE_TOKEN`/environment is available.
 
 ## Coding Conventions
